@@ -14,24 +14,24 @@ class MainActivity2 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val campo=findViewById<EditText>(R.id.edittext)
-
         val button2=findViewById<Button>(R.id.button2)
-        //button2.setOnClickListener {
-            //val intento2 = Intent(this, MainActivity::class.java)
-            //startActivity(//intento2)
-            // Setting On Click Listener
+
             button2.setOnClickListener {
 
                 // Guardar texto en variable
-                val text = campo.text
+                val nuevaURL = campo.text
 
                 // Mostrar url temporalmente
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, nuevaURL, Toast.LENGTH_SHORT).show()
+
+                // Enviar nueva URL a activity principal
+                val intento1 = Intent(this, MainActivity::class.java)
+                intento1.putExtra("direccion", campo.text.toString())
+                startActivity(intento1)
             }
         }
     }

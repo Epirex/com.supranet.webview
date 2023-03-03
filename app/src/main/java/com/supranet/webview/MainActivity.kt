@@ -18,12 +18,12 @@ class MainActivity : AppCompatActivity() {
         val myWebView: WebView = findViewById(R.id.webview)
         myWebView.setWebViewClient(WebViewClient())
         myWebView.settings.javaScriptEnabled = true
-        myWebView.loadUrl("https://www.tiendac.ar/")
+        val dato = intent.getStringExtra("direccion")
+        myWebView.loadUrl("https://${dato}")
         val button1=findViewById<Button>(R.id.button1)
         button1.setOnClickListener {
             val intento1 = Intent(this, MainActivity2::class.java)
             startActivity(intento1)
+            }
         }
-
     }
-}
