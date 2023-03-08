@@ -4,12 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
+import androidx.appcompat.widget.Toolbar
 
 class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
+        //setting toolbar
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+
+        //home navigation
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         if (savedInstanceState == null) {
             supportFragmentManager
                     .beginTransaction()
