@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         myWebView.loadUrl("https://${dato}")
         val button1=findViewById<Button>(R.id.button1)
         button1.setOnClickListener {
-            val intento1 = Intent(this, MainActivity2::class.java)
+            val intento1 = Intent(this, SettingsActivity::class.java)
             startActivity(intento1)
             }
         }
