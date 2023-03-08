@@ -2,8 +2,8 @@ package com.supranet.webview
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.view.WindowCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
