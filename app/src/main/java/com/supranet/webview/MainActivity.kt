@@ -9,6 +9,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +22,13 @@ class MainActivity : AppCompatActivity() {
         myWebView.settings.javaScriptEnabled = true
         val dato = intent.getStringExtra("direccion")
         myWebView.loadUrl("https://${dato}")
-        val button1=findViewById<Button>(R.id.button1)
+        //val button1=findViewById<>(R.id.floatingActionButton)
+        val button1: View = findViewById(R.id.floatingActionButton)
+        button1.setOnClickListener { view ->
+            Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()
+        }
         button1.setOnClickListener {
             val intento1 = Intent(this, SettingsActivity::class.java)
             startActivity(intento1)
