@@ -1,5 +1,6 @@
 package com.supranet.webview
 
+import android.app.PendingIntent.getActivity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -14,6 +15,7 @@ class MainActivity2 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.my_toolbar))
         binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -32,6 +34,9 @@ class MainActivity2 : AppCompatActivity() {
                 val intento1 = Intent(this, MainActivity::class.java)
                 intento1.putExtra("direccion", campo.text.toString())
                 startActivity(intento1)
+                button2.setOnClickListener{
+                    finish()
+                }
             }
         }
     }
