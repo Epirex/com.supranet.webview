@@ -5,10 +5,10 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:key="url"
+            app:key="url_preference"
             app:title="URL"
             app:summary="Ingrese el nuevo URL"
-            app:defaultValue="https://www.ejemplo.com" />
+            app:defaultValue="https://www.google.com" />
 
         <ListPreference
             app:key="reply"
