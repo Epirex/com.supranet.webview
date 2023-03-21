@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPrefs.getString("url_preference", "https://www.google.com")
+        val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
         webView.loadUrl(urlPreference.toString())
     }
 

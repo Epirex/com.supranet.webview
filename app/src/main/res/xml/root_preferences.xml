@@ -8,7 +8,7 @@
             app:key="url_preference"
             app:title="URL"
             app:summary="Ingrese el nuevo URL"
-            app:defaultValue="https://www.google.com" />
+            app:defaultValue="http://www.supranet.ar" />
 
         <ListPreference
             app:key="reply"
