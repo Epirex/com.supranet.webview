@@ -5,9 +5,10 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true"/>
+            app:key="url"
+            app:title="URL"
+            app:summary="Ingrese el nuevo URL"
+            app:defaultValue="https://www.ejemplo.com" />
 
         <ListPreference
             app:key="reply"

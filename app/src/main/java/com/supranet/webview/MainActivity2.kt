@@ -8,35 +8,28 @@ import com.supranet.webview.databinding.ActivityMain2Binding
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.preference.PreferenceManager
 
 class MainActivity2 : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMain2Binding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(findViewById(R.id.my_toolbar))
-        binding = ActivityMain2Binding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main2)
 
-        val campo=findViewById<EditText>(R.id.edittext)
-        val button2=findViewById<Button>(R.id.button2)
+        val urlEditText = findViewById<EditText>(R.id.urlEditText)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val savedUrl = sharedPreferences.getString("url", "https://www.ejemplo.com")
+        urlEditText.setText(savedUrl)
 
-            button2.setOnClickListener {
+        val saveButton = findViewById<Button>(R.id.button2)
+        saveButton.setOnClickListener {
+            val newUrl = urlEditText.text.toString()
+            val editor = sharedPreferences.edit()
+            editor.putString("url", newUrl)
+            editor.apply()
 
-                // Guardar texto en variable
-                val nuevaURL = campo.text
-
-                // Mostrar url temporalmente
-                Toast.makeText(this, nuevaURL, Toast.LENGTH_SHORT).show()
-
-                // Enviar nueva URL a activity principal
-                val intento1 = Intent(this, MainActivity::class.java)
-                intento1.putExtra("direccion", campo.text.toString())
-                startActivity(intento1)
-                button2.setOnClickListener{
-                    finish()
-                }
-            }
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
+}

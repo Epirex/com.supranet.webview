@@ -1,28 +1,41 @@
 package com.supranet.webview
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.core.view.WindowCompat
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
-import android.widget.EditText
+import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val myWebView: WebView = findViewById(R.id.webview)
-        myWebView.setWebViewClient(WebViewClient())
-        myWebView.settings.javaScriptEnabled = true
-        val dato = intent.getStringExtra("direccion")
-        myWebView.loadUrl("https://${dato}")
-        //val button1=findViewById<>(R.id.floatingActionButton)
+        webView = findViewById(R.id.webview)
+        webView.webViewClient = WebViewClient()
+
+        loadUrlFromPreferences()
+    }
+
+    private fun loadUrlFromPreferences() {
+        val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val url: String? = sharedPreferences.getString("url", "https://www.ejemplo.com")
+        webView.loadUrl(url!!)
+
+        //val myWebView: WebView = findViewById(R.id.webview)
+        //myWebView.setWebViewClient(WebViewClient())
+        //myWebView.settings.javaScriptEnabled = true
+        //val dato = intent.getStringExtra("direccion")
+        //myWebView.loadUrl("https://${dato}")
+
+        // floating button
         val button1: View = findViewById(R.id.floatingActionButton)
         button1.setOnClickListener { view ->
             Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)

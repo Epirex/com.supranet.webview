@@ -1,15 +1,15 @@
 package com.supranet.webview
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.EditTextPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceManager
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -30,7 +30,6 @@ class SettingsActivity : AppCompatActivity() {
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
-
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) hideSystemUI()
@@ -59,10 +58,34 @@ class SettingsActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 
-
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        }
+    }
+    class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.xml.root_preferences)
+
+            // ...
+
+            val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        }
+
+        override fun onDestroy() {
+            super.onDestroy()
+
+            val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        }
+
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+            if (key == "url") {
+                //loadUrlFromPreferences()
+            }
         }
     }
 }
