@@ -43,6 +43,17 @@ class MainActivity : AppCompatActivity() {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
         webView.loadUrl(urlPreference.toString())
+
+        // check toolbar
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val hideToolbarPref = prefs.getBoolean("hide_toolbar", false)
+        supportActionBar?.apply {
+            if (hideToolbarPref) {
+                hide()
+            } else {
+                show()
+            }
+        }
     }
 
     //val myWebView: WebView = findViewById(R.id.webview)

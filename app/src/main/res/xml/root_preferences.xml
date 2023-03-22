@@ -10,6 +10,12 @@
             app:summary="Ingrese el nuevo URL"
             app:defaultValue="http://www.supranet.ar" />
 
+        <CheckBoxPreference
+            app:key="hide_toolbar"
+            app:title="Ocultar el toolbar"
+            app:summary="Oculta el toolbar en el webview"
+            app:defaultValue="false" />
+
         <ListPreference
             app:key="reply"
             app:title="@string/reply_title"
