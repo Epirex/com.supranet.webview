@@ -3,12 +3,12 @@ package com.supranet.webview
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
+import android.view.*
+import android.webkit.WebChromeClient
 import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
@@ -79,6 +79,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             false
+        }
+
+        // Pantalla completa
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val fullscreenPreference = preferences.getBoolean("fullscreen", false)
+
+        if (preferences.getBoolean("fullscreen", false)) {
+            // Habilita la pantalla completa
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        } else {
+            // Deshabilita la pantalla completa si la opción no está marcada
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
     }
 }

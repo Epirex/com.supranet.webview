@@ -22,6 +22,12 @@
             app:summary="Mostrar Toolbar con un gesto en la pantalla"
             app:defaultValue="false"/>
 
+        <CheckBoxPreference
+            app:key="fullscreen"
+            app:title="Pantalla completa"
+            app:summary="Poner pantalla completa"
+            app:defaultValue="false"/>
+
         <ListPreference
             app:key="reply"
             app:title="@string/reply_title"
