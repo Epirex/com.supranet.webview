@@ -16,6 +16,12 @@
             app:summary="Oculta el toolbar en el webview"
             app:defaultValue="false" />
 
+        <CheckBoxPreference
+            app:key="show_toolbar"
+            app:title="Mostrar Toolbar"
+            app:summary="Mostrar Toolbar con un gesto en la pantalla"
+            app:defaultValue="false"/>
+
         <ListPreference
             app:key="reply"
             app:title="@string/reply_title"
