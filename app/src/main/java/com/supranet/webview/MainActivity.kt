@@ -46,6 +46,10 @@ class MainActivity : AppCompatActivity() {
         // Configurar WebView
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
+        webSettings.allowFileAccess = true
+        webSettings.allowContentAccess = true
+        webSettings.domStorageEnabled = true
+        webSettings.useWideViewPort = true
 
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
