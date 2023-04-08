@@ -5,11 +5,9 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
-import android.webkit.WebChromeClient
 import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.FrameLayout
 import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
