@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
+    private val actionBarThreshold = 200
     private var startY: Float = 0f
     val handler = Handler()
     val delayMillis = 1000 // 1 segundos
@@ -77,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                     val endY = event.y // Registrar la posición final del dedo
                     val showActionBar = sharedPreferences.getBoolean("show_toolbar", true)
                     supportActionBar?.let {
-                        if (showActionBar && endY - startY > 0) { // Comparar las posiciones para determinar si el usuario deslizó el dedo hacia abajo
+                        if (showActionBar && endY - startY > 0 && event.rawY < actionBarThreshold) { // Verificar que el usuario deslizó el dedo hacia abajo cerca del borde superior
                             it.show()
                         } else {
                             it.hide()
@@ -91,40 +92,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             false
-        }
-
-        // Pantalla completa
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val fullscreenPreference = preferences.getBoolean("fullscreen", false)
-
-        fun hideSystemUI() {
-            // Enables regular immersive mode.
-            // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-            // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    // Hide the nav bar and status bar
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        }
-
-        // Shows the system bars by removing all the flags
-        // except for the ones that make the content appear under the system bars.
-        fun showSystemUI() {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        }
-
-        // Habilita o deshabilita el modo pantalla completa
-        if (fullscreenPreference) {
-            hideSystemUI()
-        } else {
-            showSystemUI()
         }
     }
 }
