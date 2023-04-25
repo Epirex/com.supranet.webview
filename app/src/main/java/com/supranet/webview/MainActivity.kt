@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.preference.PreferenceManager
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,6 +56,16 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+        //webView.loadUrl(urlPreference.toString())
+
+        // Cargar URL local
+        val urlHtml = sharedPrefs.getString("url_local", "file://")
+            val file = File(urlHtml)
+            if (file.exists()) {
+                webView.loadUrl("${file.absolutePath}")
+            } else {
+                // El archivo HTML ingresado no existe
+            }
         webView.loadUrl(urlPreference.toString())
 
         // check toolbar
