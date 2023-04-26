@@ -6,9 +6,15 @@
 
         <EditTextPreference
             app:key="url_preference"
-            app:title="URL"
+            app:title="Carga un URL"
             app:summary="Ingrese el nuevo URL"
             app:defaultValue="http://www.supranet.ar" />
+
+        <CheckBoxPreference
+            app:key="enable_local"
+            app:title="Carga un URL local"
+            app:summary="Carga cualquier HTML desde la memoria interna"
+            app:defaultValue="false" />
 
         <CheckBoxPreference
             app:key="hide_toolbar"
@@ -25,7 +31,7 @@
         <CheckBoxPreference
             app:key="fullscreen"
             app:title="Pantalla completa"
-            app:summary="Poner pantalla completa"
+            app:summary="Muestra la aplicacion en pantalla completa"
             app:defaultValue="false"/>
 
         <ListPreference
