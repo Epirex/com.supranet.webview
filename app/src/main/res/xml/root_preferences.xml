@@ -12,16 +12,9 @@
 
         <CheckBoxPreference
             app:key="enable_local"
-            app:title="Habilita carga local"
+            app:title="Carga un URL local"
             app:summary="Carga cualquier HTML desde la memoria interna"
             app:defaultValue="false" />
-
-        <EditTextPreference
-            app:key="url_local"
-            app:title="Cargar URL local"
-            app:summary="Ingrese el nuevo URL local"
-            app:defaultValue="file://"
-            app:dependency="enable_local"/>
 
         <CheckBoxPreference
             app:key="hide_toolbar"

@@ -60,18 +60,14 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl(urlPreference.toString())
 
         // Cargar URL local
-        val loadLocalHtml = sharedPreferences.getBoolean("enable_local", true)
+        val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
         if (loadLocalHtml) {
             val file = File(getExternalFilesDir(null), "index.html")
             if (!file.exists()) {
-                Toast.makeText(this, "HTML local cargado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "El archivo HTML no existe!", Toast.LENGTH_SHORT).show()
                 return
             }
             webView.loadDataWithBaseURL("file://${file.parent}/", file.readText(), "text/html", "UTF-8", null)
-        } else {
-            //webView.loadUrl(urlPreference.toString())
-            Toast.makeText(this, "El archivo no existe", Toast.LENGTH_SHORT).show()
-            return
         }
 
         // check toolbar
