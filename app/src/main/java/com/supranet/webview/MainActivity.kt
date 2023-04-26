@@ -4,11 +4,13 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
-import android.view.*
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.File
 
@@ -106,7 +108,9 @@ class MainActivity : AppCompatActivity() {
             }
             false
         }
-        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
-
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_HOME)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        //startActivity(Intent.createChooser(intent, "Selecciona una aplicación de inicio"))
     }
 }
