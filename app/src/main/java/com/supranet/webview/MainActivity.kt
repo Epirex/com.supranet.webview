@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -39,6 +40,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    override fun onBackPressed() {
+
+        // To execute back press
+        // super.onBackPressed()
+
+        // To do something else
+        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT).show()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
@@ -108,9 +118,5 @@ class MainActivity : AppCompatActivity() {
             }
             false
         }
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_HOME)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        //startActivity(Intent.createChooser(intent, "Selecciona una aplicación de inicio"))
     }
 }
