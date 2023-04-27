@@ -3,6 +3,7 @@ package com.supranet.webview
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
@@ -21,6 +22,13 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
+            val openSystemSettingsPreference = findPreference<Preference>("open_settings")
+            openSystemSettingsPreference?.setOnPreferenceClickListener {
+                val intent = Intent(Settings.ACTION_SETTINGS)
+                startActivity(intent)
+                true
+            }
         }
 
          override fun onPreferenceTreeClick(preference: Preference): Boolean {

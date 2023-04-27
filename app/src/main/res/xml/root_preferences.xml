@@ -34,6 +34,11 @@
             app:summary="Muestra la aplicacion en pantalla completa"
             app:defaultValue="false"/>
 
+        <Preference
+            app:key="open_settings"
+            app:title="Configuración del sistema"
+            app:summary="Abre la configuración del sistema de Android" />
+
         <ListPreference
             app:key="reply"
             app:title="@string/reply_title"
