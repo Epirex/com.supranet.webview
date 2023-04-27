@@ -1,68 +1,70 @@
-<PreferenceScreen
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        android:layout_width="wrap_content"
         app:title="@string/messages_header">
 
         <EditTextPreference
+            app:defaultValue="http://www.supranet.ar"
             app:key="url_preference"
-            app:title="Carga un URL"
             app:summary="Ingrese el nuevo URL"
-            app:defaultValue="http://www.supranet.ar" />
+            app:title="Carga un URL" />
 
         <CheckBoxPreference
+            app:defaultValue="false"
             app:key="enable_local"
-            app:title="Carga un URL local"
             app:summary="Carga cualquier HTML desde la memoria interna"
-            app:defaultValue="false" />
+            app:title="Carga un URL local" />
 
         <CheckBoxPreference
+            app:defaultValue="false"
             app:key="hide_toolbar"
-            app:title="Ocultar el toolbar"
             app:summary="Oculta el toolbar en el webview"
-            app:defaultValue="false" />
+            app:title="Ocultar el toolbar" />
 
         <CheckBoxPreference
+            app:defaultValue="false"
             app:key="show_toolbar"
-            app:title="Mostrar Toolbar"
             app:summary="Mostrar Toolbar con un gesto en la pantalla"
-            app:defaultValue="false"/>
+            app:title="Mostrar Toolbar" />
 
         <CheckBoxPreference
+            app:defaultValue="false"
             app:key="fullscreen"
-            app:title="Pantalla completa"
             app:summary="Muestra la aplicacion en pantalla completa"
-            app:defaultValue="false"/>
+            app:title="Pantalla completa" />
 
         <Preference
             app:key="open_settings"
-            app:title="Configuración del sistema"
-            app:summary="Abre la configuración del sistema de Android" />
+            app:summary="Abre la configuración del sistema de Android"
+            app:title="Configuración del sistema" />
 
         <ListPreference
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:defaultValue="reply"
-            app:useSimpleSummaryProvider="true"/>
+            app:key="refresh"
+            app:title="Temporizador de pagina"
+            app:summary="Establecer tiempo de refresco de la pagina"
+            app:entries="@array/refresh_options"
+            app:entryValues="@array/refresh_values"
+            app:defaultValue="1" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="">
+        app:title="@string/sync_header">
 
         <SwitchPreferenceCompat
-            app:key=""
-            app:title=""/>
+            app:key="sync"
+            app:title="@string/sync_title"/>
 
         <SwitchPreferenceCompat
-            app:key=""
-            app:title=""
-            app:summaryOn=""
-            app:summaryOff=""
-            app:dependency=""/>
+            app:key="attachment"
+            app:title="@string/attachment_title"
+            app:summaryOn="@string/attachment_summary_on"
+            app:summaryOff="@string/attachment_summary_off"
+            app:dependency="sync"/>
 
     </PreferenceCategory>
+
 
 </PreferenceScreen>

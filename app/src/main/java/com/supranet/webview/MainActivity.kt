@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.File
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +42,9 @@ class MainActivity : AppCompatActivity() {
             R.id.settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
+                true
+            }
+            R.id.action_refresh -> {
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -130,5 +135,17 @@ class MainActivity : AppCompatActivity() {
             false
         }
 
+        // Configura un temporizador para actualizar
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val refreshInterval = sharedPrefs.getString("refresh", "1")!!.toInt()
+
+        // Configurar un temporizador para refrescar la página
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                webView.reload()
+                handler.postDelayed(this, refreshInterval * 60 * 1000L)
+            }
+        }, refreshInterval * 60 * 1000L)
     }
-    }
+}
