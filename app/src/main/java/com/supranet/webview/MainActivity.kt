@@ -1,6 +1,5 @@
 package com.supranet.webview
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -20,11 +19,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var gestureDetector: GestureDetector
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        val refreshItem = menu?.findItem(R.id.action_refresh)
+        refreshItem?.setOnMenuItemClickListener {
+            refreshWebView()
+            true
+        }
         return true
+    }
+
+    private fun refreshWebView() {
+        val webView = findViewById<WebView>(R.id.webview)
+        webView.reload()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
