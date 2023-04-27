@@ -1,10 +1,11 @@
 package com.supranet.webview
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -19,10 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
-    private val actionBarThreshold = 200
-    private var startY: Float = 0f
-    val handler = Handler()
-    val delayMillis = 1000 // 1 segundos
+    private lateinit var gestureDetector: GestureDetector
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -94,29 +92,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Agregar el listener onTouch para mostrar u ocultar la ActionBar
-        webView.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    startY = event.y // Registrar la posición inicial del dedo
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val endY = event.y // Registrar la posición final del dedo
-                    val showActionBar = sharedPreferences.getBoolean("show_toolbar", true)
-                    supportActionBar?.let {
-                        if (showActionBar && endY - startY > 0 && event.rawY < actionBarThreshold) { // Verificar que el usuario deslizó el dedo hacia abajo cerca del borde superior
-                            it.show()
-                        } else {
-                            it.hide()
-                        }
-                    }
-                }
-                MotionEvent.ACTION_UP -> {
-                    handler.postDelayed({
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                // Obtiene las dimensiones de la pantalla
+                val displayMetrics = resources.displayMetrics
+                val screenHeight = displayMetrics.heightPixels
+
+                // Define la región del borde superior de la pantalla
+                val topRegion = 50 // En píxeles
+
+                // Verifica si la posición inicial del evento se encuentra dentro de la región del borde superior de la pantalla
+                if (e1?.y ?: 0f < topRegion && e2?.y ?: 0f >= topRegion) {
+                    // Muestra el ActionBar
+                    supportActionBar?.show()
+
+                    // Oculta el ActionBar después de 3 segundos
+                    Handler().postDelayed({
                         supportActionBar?.hide()
-                    }, delayMillis.toLong())
+                    }, 2500)
                 }
+
+                return super.onFling(e1, e2, velocityX, velocityY)
             }
+        })
+
+        // Asigna el GestureDetector al WebView
+        webView.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
             false
         }
+
     }
-}
+    }
