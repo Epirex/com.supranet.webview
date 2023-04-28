@@ -1,16 +1,17 @@
 package com.supranet.webview
 
+import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.GestureDetector
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
+import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var passwordDialog: Dialog
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -40,8 +42,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+                showPasswordDialog()
                 true
             }
             R.id.action_refresh -> {
@@ -58,8 +59,10 @@ class MainActivity : AppCompatActivity() {
         // super.onBackPressed()
 
         // To do something else
-        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
+            .show()
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
@@ -91,7 +94,13 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "El archivo HTML no existe!", Toast.LENGTH_SHORT).show()
                 return
             }
-            webView.loadDataWithBaseURL("file://${file.parent}/", file.readText(), "text/html", "UTF-8", null)
+            webView.loadDataWithBaseURL(
+                "file://${file.parent}/",
+                file.readText(),
+                "text/html",
+                "UTF-8",
+                null
+            )
         }
 
         // check toolbar
@@ -106,29 +115,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Agregar el listener onTouch para mostrar u ocultar la ActionBar
-        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                // Obtiene las dimensiones de la pantalla
-                val displayMetrics = resources.displayMetrics
-                val screenHeight = displayMetrics.heightPixels
+        val gestureDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(
+                    e1: MotionEvent,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    // Obtiene las dimensiones de la pantalla
+                    val displayMetrics = resources.displayMetrics
+                    val screenHeight = displayMetrics.heightPixels
 
-                // Define la región del borde superior de la pantalla
-                val topRegion = 50 // En píxeles
+                    // Define la región del borde superior de la pantalla
+                    val topRegion = 50 // En píxeles
 
-                // Verifica si la posición inicial del evento se encuentra dentro de la región del borde superior de la pantalla
-                if (e1?.y ?: 0f < topRegion && e2?.y ?: 0f >= topRegion) {
-                    // Muestra el ActionBar
-                    supportActionBar?.show()
+                    // Verifica si la posición inicial del evento se encuentra dentro de la región del borde superior de la pantalla
+                    if (e1?.y ?: 0f < topRegion && e2?.y ?: 0f >= topRegion) {
+                        // Muestra el ActionBar
+                        supportActionBar?.show()
 
-                    // Oculta el ActionBar después de 3 segundos
-                    Handler().postDelayed({
-                        supportActionBar?.hide()
-                    }, 2500)
+                        // Oculta el ActionBar después de 3 segundos
+                        Handler().postDelayed({
+                            supportActionBar?.hide()
+                        }, 2500)
+                    }
+
+                    return super.onFling(e1, e2, velocityX, velocityY)
                 }
-
-                return super.onFling(e1, e2, velocityX, velocityY)
-            }
-        })
+            })
 
         // Asigna el GestureDetector al WebView
         webView.setOnTouchListener { _, event ->
@@ -148,5 +163,39 @@ class MainActivity : AppCompatActivity() {
                 handler.postDelayed(this, refreshInterval * 60 * 1000L)
             }
         }, refreshInterval * 60 * 1000L)
+
+        // Crear el cuadro flotante
+        passwordDialog = Dialog(this)
+        passwordDialog.setContentView(R.layout.password)
+        passwordDialog.setCancelable(false)
+
+        // Configurar el botón de enviar
+        val sendButton = passwordDialog.findViewById<Button>(R.id.buttonDone)
+        sendButton.setOnClickListener { checkPassword() }
     }
+
+    private fun showPasswordDialog() {
+        // Mostrar el cuadro flotante
+        passwordDialog.show()
+    }
+
+    //val settingsButton = findViewById<Button>(R.id.settings)
+    //settingsButton.setOnClickListener
+    //{ showPasswordDialog() }
+
+    private fun checkPassword() {
+        val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
+        val password = passwordEditText.text.toString()
+
+        // Verificar la contraseña
+        if (password == "1234") {
+            passwordDialog.dismiss()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        } else {
+            val errorTextView = passwordDialog.findViewById<TextView>(R.id.error_textview)
+            errorTextView.visibility = View.VISIBLE
+        }
+    }
+
 }
