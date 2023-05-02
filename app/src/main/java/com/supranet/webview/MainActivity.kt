@@ -2,6 +2,7 @@ package com.supranet.webview
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -17,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
-import java.util.*
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -154,23 +155,19 @@ class MainActivity : AppCompatActivity() {
 
         saveButton = findViewById(R.id.save_button)
         saveButton.setOnClickListener {
-            // Deshabilitamos el botón para evitar que el usuario haga clic varias veces mientras se está guardando el archivo
-            //saveButton.isEnabled = false
-
-            // Obtenemos el contenido SVG de la página web
-            val script = "var serializer = new XMLSerializer();serializer.serializeToString(document.querySelector('svg'));"
-            webView.evaluateJavascript(script) { svgContent ->
-                // Creamos un archivo en el directorio de descargas del dispositivo
-                val fileName = "logo.svg"
-                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
-
-                // Escribimos el contenido SVG en el archivo
-                file.writeText(svgContent)
-
-                // Mostramos un mensaje de éxito al usuario
-                Toast.makeText(this, "Archivo guardado: $fileName", Toast.LENGTH_SHORT).show()
+                webView.evaluateJavascript(
+                    "(function() { return encodeURIComponent(new XMLSerializer().serializeToString(document.querySelector('svg'))); })();"
+                ) { svg ->
+                    val decodedSvg = Uri.decode(svg)
+                    val contentSvg = decodedSvg.substring(1, decodedSvg.length - 1)
+                    val fileName = "logo.svg"
+                    val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+                    val outputStream = FileOutputStream(file)
+                    outputStream.write(contentSvg.toByteArray(Charsets.UTF_8))
+                    outputStream.close()
+                    Toast.makeText(applicationContext, "SVG guardado correctamente", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
 
     }
 }
