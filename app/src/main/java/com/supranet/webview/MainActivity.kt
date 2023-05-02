@@ -3,6 +3,7 @@ package com.supranet.webview
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.view.GestureDetector
@@ -14,6 +15,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.util.*
 
@@ -21,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var saveButton: FloatingActionButton
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -80,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+        val urlPreference = sharedPrefs.getString("url_preference", "https://looka.com/logo-maker")
         webView.loadUrl(urlPreference.toString())
 
         // Cargar URL local
@@ -148,5 +151,26 @@ class MainActivity : AppCompatActivity() {
                 handler.postDelayed(this, refreshInterval * 60 * 1000L)
             }
         }, refreshInterval * 60 * 1000L)
+
+        saveButton = findViewById(R.id.save_button)
+        saveButton.setOnClickListener {
+            // Deshabilitamos el botón para evitar que el usuario haga clic varias veces mientras se está guardando el archivo
+            //saveButton.isEnabled = false
+
+            // Obtenemos el contenido SVG de la página web
+            val script = "var serializer = new XMLSerializer();serializer.serializeToString(document.querySelector('svg'));"
+            webView.evaluateJavascript(script) { svgContent ->
+                // Creamos un archivo en el directorio de descargas del dispositivo
+                val fileName = "logo.svg"
+                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+
+                // Escribimos el contenido SVG en el archivo
+                file.writeText(svgContent)
+
+                // Mostramos un mensaje de éxito al usuario
+                Toast.makeText(this, "Archivo guardado: $fileName", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 }
