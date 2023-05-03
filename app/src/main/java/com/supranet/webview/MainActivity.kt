@@ -48,6 +48,12 @@ class MainActivity : AppCompatActivity() {
             R.id.action_refresh -> {
                 true
             }
+            R.id.action_home -> {
+                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+                val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+                webView.loadUrl(urlPreference.toString())
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
