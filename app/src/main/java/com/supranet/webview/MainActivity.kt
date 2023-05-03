@@ -199,8 +199,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         } else {
-            val errorTextView = passwordDialog.findViewById<TextView>(R.id.error_textview)
-            errorTextView.visibility = View.VISIBLE
+            Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
         }
     }
 
