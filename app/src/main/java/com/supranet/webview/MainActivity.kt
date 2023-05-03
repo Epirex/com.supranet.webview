@@ -51,6 +51,10 @@ class MainActivity : AppCompatActivity() {
             R.id.action_refresh -> {
                 true
             }
+            R.id.action_home -> {
+                webView.loadUrl("https://looka.com/logo-maker")
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -168,6 +172,5 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(applicationContext, "SVG guardado correctamente", Toast.LENGTH_SHORT).show()
                 }
             }
-
     }
 }
