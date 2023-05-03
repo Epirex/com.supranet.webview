@@ -19,6 +19,8 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -160,12 +162,13 @@ class MainActivity : AppCompatActivity() {
                 ) { svg ->
                     val decodedSvg = Uri.decode(svg)
                     val contentSvg = decodedSvg.substring(1, decodedSvg.length - 1)
-                    val fileName = "logo.svg"
+                    val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                    val fileName = "logo_$date.svg"
                     val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
                     val outputStream = FileOutputStream(file)
                     outputStream.write(contentSvg.toByteArray(Charsets.UTF_8))
                     outputStream.close()
-                    Toast.makeText(applicationContext, "SVG guardado correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Archivo guardado: $fileName", Toast.LENGTH_SHORT).show()
                 }
             }
 
