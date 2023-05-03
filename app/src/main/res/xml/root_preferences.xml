@@ -23,6 +23,12 @@
             app:summary="Oculta el toolbar en el webview"
             app:title="Ocultar el toolbar" />
 
+        <CheckBoxPreference
+            android:key="custom_css"
+            android:title="Descargar CSS"
+            android:summary="Descarga y aplica un archivo CSS para personalizar la página"
+            android:defaultValue="false" />
+
         <Preference
             app:key="open_settings"
             app:summary="Abre la configuración del sistema de Android"

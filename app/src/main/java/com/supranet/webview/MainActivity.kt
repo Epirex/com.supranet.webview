@@ -1,22 +1,29 @@
 package com.supranet.webview
 
 import android.app.Dialog
-import android.content.Intent
-import android.content.SharedPreferences
+import android.app.DownloadManager
+import android.content.*
+import android.content.ContentValues.TAG
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import okhttp3.*
+import okio.IOException
 import java.io.File
-import java.util.*
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,7 +57,8 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-                val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+                val urlPreference =
+                    sharedPrefs.getString("url_preference", "http://www.supranet.ar")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -157,6 +165,54 @@ class MainActivity : AppCompatActivity() {
             false
         }
 
+        // Aplica un custom CSS
+        val customCss = sharedPreferences.getBoolean("custom_css", false)
+        if (customCss) {
+            val fileName = "supranet.css"
+            val url = "http://supranet.ar/css/supranet.css"
+
+            // Create a DownloadManager request for the CSS file
+            val downloadRequest = DownloadManager.Request(Uri.parse(url))
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+                .setTitle(fileName)
+                .setDescription("Downloading $fileName")
+                .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, fileName)
+                //.setRequiresCharging(false)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+
+            // Get the DownloadManager service and enqueue the download request
+            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val downloadId = downloadManager.enqueue(downloadRequest)
+
+            // Set a BroadcastReceiver to listen for the download completion
+            val onComplete = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    // Get the download ID from the intent
+                    val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+
+                    // If this is the completed download of the CSS file, load it into the WebView
+                    if (id == downloadId) {
+                        val downloadDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                        val cssFile = File(downloadDir, fileName)
+                        webView.evaluateJavascript(
+                            "(function() { " +
+                                    "   var css = document.createElement('link');" +
+                                    "   css.setAttribute('rel', 'stylesheet');" +
+                                    "   css.setAttribute('type', 'text/css');" +
+                                    "   css.setAttribute('href', 'file://${cssFile.absolutePath}');" +
+                                    "   document.head.appendChild(css);" +
+                                    "})();"
+                        ) { result ->
+                            // JavaScript evaluation completed
+                        }
+                    }
+                }
+            }
+
+            // Register the BroadcastReceiver to listen for the download completion
+            registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        }
+
         // Configura un temporizador para actualizar
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val refreshInterval = sharedPrefs.getString("refresh", "1")!!.toInt()
@@ -202,5 +258,4 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
