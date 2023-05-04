@@ -19,8 +19,10 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import android.util.Base64
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,12 +88,44 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
         webSettings.useWideViewPort = true
+        webView.settings.setAllowFileAccessFromFileURLs(true)
+        webView.settings.setAllowUniversalAccessFromFileURLs(true)
         webView.setKeepScreenOn(true)
 
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPrefs.getString("url_preference", "https://looka.com/logo-maker")
         webView.loadUrl(urlPreference.toString())
+
+        // Configurar un WebViewClient para inyectar el CSS personalizado en cada página web cargada
+        webView.webViewClient = object : WebViewClient() {
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    injectCSS()
+                }
+            private fun injectCSS() {
+                try {
+                    val inputStream = assets.open("looka.css")
+                    val buffer = ByteArray(inputStream.available())
+                    inputStream.read(buffer)
+                    inputStream.close()
+                    val encoded = Base64.encodeToString(buffer , Base64.NO_WRAP)
+                    webView.loadUrl(
+                        "javascript:(function() {" +
+                                "var parent = document.getElementsByTagName('head').item(0);" +
+                                "var style = document.createElement('style');" +
+                                "style.type = 'text/css';" +
+                                // Tell the browser to BASE64-decode the string into your script !!!
+                                "style.innerHTML = window.atob('" + encoded + "');" +
+                                "parent.appendChild(style)" +
+                                "})()"
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+        }
 
         // Cargar URL local
         val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
