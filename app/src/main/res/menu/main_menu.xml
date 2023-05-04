@@ -2,6 +2,11 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_home"
+        android:icon="@drawable/round_home_white_48dp"
+        android:title="Volver al inicio"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/outline_refresh_white_48dp"
         android:title="Refrescar"
