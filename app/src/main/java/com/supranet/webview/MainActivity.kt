@@ -1,15 +1,12 @@
 package com.supranet.webview
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
-import android.content.ContentValues.TAG
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.os.*
+import android.provider.Settings
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,10 +15,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import okhttp3.*
-import okio.IOException
+import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -81,6 +77,56 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Obtener el ANDROID_ID del dispositivo
+        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+        // URL del archivo de texto en el servidor
+        val url = "http://supranet.ar/webview/devices.txt"
+
+        // Crear una instancia de la clase AsyncTask para realizar la solicitud HTTP en segundo plano
+        val networkTask = @SuppressLint("StaticFieldLeak")
+        object : AsyncTask<Unit, Unit, Boolean>() {
+
+            override fun doInBackground(vararg params: Unit?): Boolean {
+                // Crear una instancia de la clase URL para la URL del servidor
+                val serverUrl = URL(url)
+
+                // Crear una instancia de la clase HttpURLConnection para hacer la solicitud HTTP
+                val connection = serverUrl.openConnection() as HttpURLConnection
+
+                // Establecer los parámetros de la solicitud HTTP
+                connection.requestMethod = "GET"
+                connection.doInput = true
+
+                // Leer la respuesta de la solicitud HTTP
+                val stream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(stream))
+                val response = StringBuffer()
+
+                var inputLine: String?
+                while (reader.readLine().also { inputLine = it } != null) {
+                    response.append(inputLine)
+                }
+
+                // Buscar el ID único del dispositivo en la respuesta
+                return response.toString().contains(androidId)
+            }
+
+            override fun onPostExecute(result: Boolean) {
+                // Si el ID se encuentra en la respuesta, ejecutar la aplicación
+                if (result) {
+                    // Aquí debes iniciar el WebView de tu aplicación
+                } else {
+                    // Si el ID no se encuentra en la respuesta, mostrar un mensaje de error
+                    Toast.makeText(this@MainActivity, "Lo siento, no puedes usar esta aplicación", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+        }
+
+        // Ejecutar la tarea asincrónica
+        networkTask.execute()
 
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()
