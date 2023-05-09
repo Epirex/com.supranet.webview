@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
-        // URL del archivo de texto en el servidor
+        // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
 
         // Crear una instancia de la clase AsyncTask para realizar la solicitud HTTP en segundo plano
@@ -89,17 +89,10 @@ class MainActivity : AppCompatActivity() {
         object : AsyncTask<Unit, Unit, Boolean>() {
 
             override fun doInBackground(vararg params: Unit?): Boolean {
-                // Crear una instancia de la clase URL para la URL del servidor
                 val serverUrl = URL(url)
-
-                // Crear una instancia de la clase HttpURLConnection para hacer la solicitud HTTP
                 val connection = serverUrl.openConnection() as HttpURLConnection
-
-                // Establecer los parámetros de la solicitud HTTP
                 connection.requestMethod = "GET"
                 connection.doInput = true
-
-                // Leer la respuesta de la solicitud HTTP
                 val stream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(stream))
                 val response = StringBuffer()
@@ -114,13 +107,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPostExecute(result: Boolean) {
-                // Si el ID se encuentra en la respuesta, ejecutar la aplicación
                 if (result) {
-                    // Aquí debes iniciar el WebView de tu aplicación
                 } else {
                     // Si el ID no se encuentra en la respuesta, mostrar un mensaje de error
-                    Toast.makeText(this@MainActivity, "Lo siento, no puedes usar esta aplicación", Toast.LENGTH_SHORT).show()
-                    finish()
+                    val intent = Intent(applicationContext, ScreenSupport::class.java)
+                    startActivity(intent)
+                    Toast.makeText(this@MainActivity, "Error en la licencia", Toast.LENGTH_SHORT).show()
                 }
             }
         }
