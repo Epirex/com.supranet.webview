@@ -48,6 +48,10 @@
             app:entryValues="@array/refresh_values"
             app:defaultValue="1" />
 
+        <Preference
+            android:key="android_id_preference"
+            android:title="Android ID" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

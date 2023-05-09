@@ -23,6 +23,18 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
+            lateinit var androidIdPreference: Preference
+
+            // Asigna la preferencia correspondiente a la variable androidIdPreference
+            androidIdPreference = findPreference("android_id_preference") ?: throw RuntimeException("Preference with key 'android_id_preference' not found")
+
+
+            // Obtiene el Android ID
+            val androidId = Settings.Secure.getString(requireActivity().contentResolver, Settings.Secure.ANDROID_ID)
+
+            // Asigna el Android ID a la preferencia correspondiente
+            androidIdPreference.summary = androidId
+
             val openSystemSettingsPreference = findPreference<Preference>("open_settings")
             openSystemSettingsPreference?.setOnPreferenceClickListener {
                 val intent = Intent(Settings.ACTION_SETTINGS)
