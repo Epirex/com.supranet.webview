@@ -11,5 +11,8 @@ class ScreenSupport : AppCompatActivity() {
         setContentView(R.layout.screen_support)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity()
+    }
 }
