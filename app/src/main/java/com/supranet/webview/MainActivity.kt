@@ -272,6 +272,61 @@ class MainActivity : AppCompatActivity() {
         // Configurar el botón de enviar
         val sendButton = passwordDialog.findViewById<Button>(R.id.buttonDone)
         sendButton.setOnClickListener { checkPassword() }
+
+        val button1 = passwordDialog.findViewById<Button>(R.id.button1)
+        val button2 = passwordDialog.findViewById<Button>(R.id.button2)
+        val button3 = passwordDialog.findViewById<Button>(R.id.button3)
+        val button4 = passwordDialog.findViewById<Button>(R.id.button4)
+        val button5 = passwordDialog.findViewById<Button>(R.id.button5)
+        val button6 = passwordDialog.findViewById<Button>(R.id.button6)
+        val button7 = passwordDialog.findViewById<Button>(R.id.button7)
+        val button8 = passwordDialog.findViewById<Button>(R.id.button8)
+        val button9 = passwordDialog.findViewById<Button>(R.id.button9)
+        val button0 = passwordDialog.findViewById<Button>(R.id.button0)
+        val buttonClear = passwordDialog.findViewById<Button>(R.id.buttonClear)
+        val buttonExit = passwordDialog.findViewById<Button>(R.id.buttonExit)
+        val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
+        button1.setOnClickListener {
+            passwordEditText.append("1")
+        }
+        button2.setOnClickListener {
+            passwordEditText.append("2")
+        }
+        button3.setOnClickListener {
+            passwordEditText.append("3")
+        }
+        button4.setOnClickListener {
+            passwordEditText.append("4")
+        }
+        button5.setOnClickListener {
+            passwordEditText.append("5")
+        }
+        button6.setOnClickListener {
+            passwordEditText.append("6")
+        }
+        button7.setOnClickListener {
+            passwordEditText.append("7")
+        }
+        button8.setOnClickListener {
+            passwordEditText.append("8")
+        }
+
+        button9.setOnClickListener {
+            passwordEditText.append("9")
+        }
+
+        button0.setOnClickListener {
+            passwordEditText.append("0")
+        }
+        buttonClear.setOnClickListener {
+            val text = passwordEditText.text
+            if (text.isNotEmpty()) {
+                passwordEditText.text.delete(text.length - 1, text.length)
+            }
+        }
+        buttonExit.setOnClickListener {
+            passwordDialog.dismiss()
+        }
     }
 
     private fun showPasswordDialog() {
