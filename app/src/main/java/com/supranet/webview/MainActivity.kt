@@ -20,6 +20,7 @@ import java.io.File
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -253,7 +254,7 @@ class MainActivity : AppCompatActivity() {
 
         // Configura un temporizador para actualizar
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val refreshInterval = sharedPrefs.getString("refresh", "1")!!.toInt()
+        val refreshInterval = sharedPrefs.getString("refresh", "5")!!.toInt()
 
         // Configurar un temporizador para refrescar la página
         val handler = Handler(Looper.getMainLooper())
@@ -327,6 +328,24 @@ class MainActivity : AppCompatActivity() {
         buttonExit.setOnClickListener {
             passwordDialog.dismiss()
         }
+
+        val timer = Timer()
+        val task = object : TimerTask() {
+            var isStreamingActivityShowing = false
+            override fun run() {
+                runOnUiThread {
+                    if (isStreamingActivityShowing) {
+                        val intent = Intent(this@MainActivity, Streaming::class.java)
+                        startActivity(intent)
+                        isStreamingActivityShowing = false
+                        timer.cancel()
+                    } else {
+                        isStreamingActivityShowing = true
+                    }
+                }
+            }
+        }
+        timer.schedule(task, 0, 1 * 60 * 1000)
     }
 
     private fun showPasswordDialog() {
