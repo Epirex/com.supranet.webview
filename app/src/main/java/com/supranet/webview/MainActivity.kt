@@ -1,15 +1,12 @@
 package com.supranet.webview
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
-import android.content.ContentValues.TAG
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.os.*
+import android.provider.Settings
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,10 +15,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import okhttp3.*
-import okio.IOException
+import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -81,6 +77,48 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Obtener el ANDROID_ID del dispositivo
+        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+        // URL del servidor
+        val url = "http://supranet.ar/webview/devices.txt"
+
+        // Crear una instancia de la clase AsyncTask para realizar la solicitud HTTP en segundo plano
+        val networkTask = @SuppressLint("StaticFieldLeak")
+        object : AsyncTask<Unit, Unit, Boolean>() {
+
+            override fun doInBackground(vararg params: Unit?): Boolean {
+                val serverUrl = URL(url)
+                val connection = serverUrl.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.doInput = true
+                val stream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(stream))
+                val response = StringBuffer()
+
+                var inputLine: String?
+                while (reader.readLine().also { inputLine = it } != null) {
+                    response.append(inputLine)
+                }
+
+                // Buscar el ID único del dispositivo en la respuesta
+                return response.toString().contains(androidId)
+            }
+
+            override fun onPostExecute(result: Boolean) {
+                if (result) {
+                } else {
+                    // Si el ID no se encuentra en la respuesta, mostrar un mensaje de error
+                    val intent = Intent(applicationContext, ScreenSupport::class.java)
+                    startActivity(intent)
+                    Toast.makeText(this@MainActivity, "Error en la licencia", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Ejecutar la tarea asincrónica
+        networkTask.execute()
 
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()
@@ -234,6 +272,61 @@ class MainActivity : AppCompatActivity() {
         // Configurar el botón de enviar
         val sendButton = passwordDialog.findViewById<Button>(R.id.buttonDone)
         sendButton.setOnClickListener { checkPassword() }
+
+        val button1 = passwordDialog.findViewById<Button>(R.id.button1)
+        val button2 = passwordDialog.findViewById<Button>(R.id.button2)
+        val button3 = passwordDialog.findViewById<Button>(R.id.button3)
+        val button4 = passwordDialog.findViewById<Button>(R.id.button4)
+        val button5 = passwordDialog.findViewById<Button>(R.id.button5)
+        val button6 = passwordDialog.findViewById<Button>(R.id.button6)
+        val button7 = passwordDialog.findViewById<Button>(R.id.button7)
+        val button8 = passwordDialog.findViewById<Button>(R.id.button8)
+        val button9 = passwordDialog.findViewById<Button>(R.id.button9)
+        val button0 = passwordDialog.findViewById<Button>(R.id.button0)
+        val buttonClear = passwordDialog.findViewById<Button>(R.id.buttonClear)
+        val buttonExit = passwordDialog.findViewById<Button>(R.id.buttonExit)
+        val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
+        button1.setOnClickListener {
+            passwordEditText.append("1")
+        }
+        button2.setOnClickListener {
+            passwordEditText.append("2")
+        }
+        button3.setOnClickListener {
+            passwordEditText.append("3")
+        }
+        button4.setOnClickListener {
+            passwordEditText.append("4")
+        }
+        button5.setOnClickListener {
+            passwordEditText.append("5")
+        }
+        button6.setOnClickListener {
+            passwordEditText.append("6")
+        }
+        button7.setOnClickListener {
+            passwordEditText.append("7")
+        }
+        button8.setOnClickListener {
+            passwordEditText.append("8")
+        }
+
+        button9.setOnClickListener {
+            passwordEditText.append("9")
+        }
+
+        button0.setOnClickListener {
+            passwordEditText.append("0")
+        }
+        buttonClear.setOnClickListener {
+            val text = passwordEditText.text
+            if (text.isNotEmpty()) {
+                passwordEditText.text.delete(text.length - 1, text.length)
+            }
+        }
+        buttonExit.setOnClickListener {
+            passwordDialog.dismiss()
+        }
     }
 
     private fun showPasswordDialog() {
