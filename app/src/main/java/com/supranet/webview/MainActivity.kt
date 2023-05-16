@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://www.poster.com.ar/farmacia")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+        val urlPreference = sharedPrefs.getString("url_preference", "http://www.poster.com.ar/marito")
         webView.loadUrl(urlPreference.toString())
 
         // Cargar URL local
@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
 
         // check toolbar
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val hideToolbarPref = prefs.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = prefs.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()
@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        timer.schedule(task, 0, 1 * 60 * 1000)
+        timer.schedule(task, 0, 1 * 30 * 1000)
     }
 
     private fun showPasswordDialog() {
