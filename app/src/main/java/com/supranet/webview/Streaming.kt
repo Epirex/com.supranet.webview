@@ -48,8 +48,10 @@ class Streaming : AppCompatActivity() {
                     if (isStreamingActivityShowing) {
                         val intent = Intent(this@Streaming, MainActivity::class.java)
                         startActivity(intent)
-                        isStreamingActivityShowing = false
                         timer.cancel()
+                        Runtime.getRuntime().gc()
+                        System.gc()
+                        finish()
                     } else {
                         isStreamingActivityShowing = true
                     }
@@ -57,6 +59,10 @@ class Streaming : AppCompatActivity() {
             }
         }
         timer.schedule(task, 0, 1 * 30 * 1000)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        System.gc()
     }
 }
 

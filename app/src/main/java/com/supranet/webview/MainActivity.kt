@@ -132,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
         webSettings.useWideViewPort = true
+        webView.clearCache(true)
         webView.setKeepScreenOn(true)
 
         // Cargar URL
@@ -335,10 +336,12 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 runOnUiThread {
                     if (isStreamingActivityShowing) {
+                        finish()
+                        webView.destroy()
                         val intent = Intent(this@MainActivity, Streaming::class.java)
                         startActivity(intent)
-                        isStreamingActivityShowing = false
                         timer.cancel()
+                        finish()
                     } else {
                         isStreamingActivityShowing = true
                     }
@@ -370,4 +373,10 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        System.gc()
+    }
+
 }
