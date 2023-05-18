@@ -21,6 +21,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlin.concurrent.schedule
 
 class MainActivity : AppCompatActivity() {
 
@@ -82,6 +83,30 @@ class MainActivity : AppCompatActivity() {
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
+        // Forzar cierre de la aplicacion para liberar memoria
+            val timerReset = Timer()
+            val calendar = Calendar.getInstance()
+
+            // Obtener la hora actual
+            val horaActual = calendar.get(Calendar.HOUR_OF_DAY)
+            val minutosActuales = calendar.get(Calendar.MINUTE)
+
+            calendar.set(Calendar.HOUR_OF_DAY, 17)
+            calendar.set(Calendar.MINUTE, 1)
+
+            if (horaActual >= 17 && minutosActuales >= 1) {
+                // Añadir un día a la fecha para programar el temporizador para mañana
+                calendar.add(Calendar.DAY_OF_YEAR, 1)
+            }
+
+            val fechaProgramada = calendar.time
+            timerReset.schedule(object : TimerTask() {
+                override fun run() {
+                    // Cerrar la aplicación
+                    System.exit(0)
+                }
+            }, fechaProgramada)
+
         // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
 
@@ -119,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Ejecutar la tarea asincrónica
-        networkTask.execute()
+        //networkTask.execute()
 
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()

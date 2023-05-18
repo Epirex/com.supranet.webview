@@ -17,6 +17,30 @@ class Streaming : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.streaming)
 
+        // Forzar cierre de la aplicacion para liberar memoria
+        val timerReset = Timer()
+        val calendar = Calendar.getInstance()
+
+        // Obtener la hora actual
+        val horaActual = calendar.get(Calendar.HOUR_OF_DAY)
+        val minutosActuales = calendar.get(Calendar.MINUTE)
+
+        calendar.set(Calendar.HOUR_OF_DAY, 17)
+        calendar.set(Calendar.MINUTE, 1)
+
+        if (horaActual >= 17 && minutosActuales >= 1) {
+            // Añadir un día a la fecha para programar el temporizador para mañana
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val fechaProgramada = calendar.time
+        timerReset.schedule(object : TimerTask() {
+            override fun run() {
+                // Cerrar la aplicación
+                System.exit(0)
+            }
+        }, fechaProgramada)
+
         val videoView = findViewById<VideoView>(R.id.video_view)
         val videoUri =
             Uri.parse("https://live-01-02-eltrece.vodgc.net/eltrecetv/index.m3u8?PlaylistM3UCL")
