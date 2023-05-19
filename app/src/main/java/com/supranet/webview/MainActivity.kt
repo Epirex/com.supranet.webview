@@ -21,7 +21,6 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import kotlin.concurrent.schedule
 
 class MainActivity : AppCompatActivity() {
 
@@ -144,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Ejecutar la tarea asincrónica
-        //networkTask.execute()
+        networkTask.execute()
 
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()
@@ -401,7 +400,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        webView.destroy()
+        webView.clearCache(true)
         System.gc()
     }
-
 }

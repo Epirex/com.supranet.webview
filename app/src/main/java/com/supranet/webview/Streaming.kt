@@ -73,8 +73,7 @@ class Streaming : AppCompatActivity() {
                         val intent = Intent(this@Streaming, MainActivity::class.java)
                         startActivity(intent)
                         timer.cancel()
-                        Runtime.getRuntime().gc()
-                        System.gc()
+                        cancel()
                         finish()
                     } else {
                         isStreamingActivityShowing = true
