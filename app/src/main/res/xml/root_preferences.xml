@@ -23,18 +23,6 @@
             app:summary="Oculta el toolbar en el webview"
             app:title="Ocultar el toolbar" />
 
-        <CheckBoxPreference
-            app:defaultValue="false"
-            app:key="show_toolbar"
-            app:summary="Mostrar Toolbar con un gesto en la pantalla"
-            app:title="Mostrar Toolbar" />
-
-        <CheckBoxPreference
-            app:defaultValue="false"
-            app:key="fullscreen"
-            app:summary="Muestra la aplicacion en pantalla completa"
-            app:title="Pantalla completa" />
-
         <Preference
             app:key="open_settings"
             app:summary="Abre la configuración del sistema de Android"
