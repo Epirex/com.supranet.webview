@@ -7,6 +7,10 @@ android {
     namespace 'com.supranet.webview'
     compileSdk 33
 
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
+
     defaultConfig {
         applicationId "com.supranet.webview"
         minSdk 23
@@ -50,4 +54,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
 }
