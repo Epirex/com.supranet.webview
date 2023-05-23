@@ -6,6 +6,7 @@
         <item>3 minutos</item>
         <item>4 minutos</item>
         <item>5 minutos</item>
+        <item>Desactivado</item>
     </string-array>
     <string-array name="refresh_values">
         <item>1</item>
@@ -13,6 +14,7 @@
         <item>3</item>
         <item>4</item>
         <item>5</item>
+        <item>0</item>
     </string-array>
 
 </resources>
