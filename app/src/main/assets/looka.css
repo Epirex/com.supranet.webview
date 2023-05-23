@@ -1,8 +1,25 @@
-nav a img {
+nav.navbar.plugin__navbar.navbar--sticky {
+  display: none
+
+}
+
+div.alt-layout__section {
   display: none;
 }
 
-div.navbar__main {
+section div h2 {
+  display: none;
+}
+
+div.icon-grid__inner.icon-grid__inner--centered.icon-grid__inner--3-col {
+  display: none;
+}
+
+section.cta.cta--grey {
+  display: none;
+}
+
+h2.video-player__headline {
   display: none;
 }
 
@@ -10,15 +27,255 @@ img.attachment-full.size-full.lozad {
   display: none;
 }
 
+section.faq {
+  display: none;
+}
+
+div.footer__container {
+  display: none;
+}
+
+div.video__button {
+  display: none;
+}
+
+section.cta.cta--blue.cta--two-col {
+  display: none;
+}
+
+p.footer__copyright {
+  display: none;
+}
+
 div.intercom-bubble {
   display: none;
+}
+
+p.header__paragraph {
+	visibility: hidden;
+}
+p.header__paragraph:before {
+	content: " Combinamos sus preferencias de logotipos con inteligencia artificial para ayudarlo a crear un logotipo personalizado que le encantara. Todo lo que se necesita son unos pocos clics y cinco minutos. ";
+	visibility:visible;
+  float:left;
+}
+
+h1.header__title {
+  	visibility: hidden;
+}
+h1.header__title:before {
+	content: " Creador de logos con Inteligencia Artificial ";
+	visibility:visible;
+  float:left;
+}
+
+div.css-17hxjdc {
+  display: none
 
 }
 
-img.attachment-large.size-large.lozad {
+h2.css-ldqqws {
+  visibility: hidden;
+}
+h2.css-ldqqws::before {
+  content: "Necesitamos informacion sobre tu emprendimiento. 1. Dinos a que rubro pertenece. 2. Selecciona un logo para inspiracion. 3. Elije un color. 4. Un eslogan. 5. Por ultimo un simbolo. ";
+  visibility: visible;
+}
+
+h2.css-u9fdvv {
   display: none;
 }
 
-button.navbar__toggle {
+div.css-113fvn8 {
+  display: none
+
+}
+
+div.css-8k7vuk {
+  display: none;
+}
+
+div.css-1w47qe3.css-qdeacm.css-18g08sj.css-zjik7 {
+  display: none;
+}
+
+h2.css-1ls4flx {
+  display: none;
+}
+
+input.css-4t1i05 {
+  display: none;
+}
+
+div.css-1w47qe3.css-qdeacm.css-zjik7 {
+  display: none;
+}
+
+a.css-1k5gipn {
+  display: none;
+}
+
+div p a {
+  display: none;
+}
+
+p.css-1kangl1 {
+  display: none;
+}
+
+div.css-6cqnyu.css-zjik7 {
+  display: none
+
+}
+
+span.css-1tm3j0p.css-zjik7 {
+  display: none;
+}
+
+div.css-1w47qe3.css-1e7ea2v.css-zjik7 {
+  display: none;
+}
+
+div.css-1w47qe3.css-98hmgt.css-zjik7 {
+  display: none;
+}
+
+input.css-2suvtr {
+  display: none;
+}
+
+div.css-yvwru5.css-f7ay7b.css-uo3y0f.css-zjik7 {
+  display: none;
+}
+
+p.css-u9fdvv {
+  visibility: hidden;
+}
+p.css-u9fdvv::before {
+  content: " Elije el que mas te guste y nosotros te lo enviamos por correo.";
+  visibility: visible;
+}
+
+h4.css-1im6sg6 {
+  visibility: hidden;
+}
+h4.css-1im6sg6::before {
+  content: "Tu logo ya esta listo!";
+  visibility: visible;
+}
+div.css-jhxqpp {
+  display: none;
+}
+div.css-1uoa8zv.css-zjik7 {
+  display: none;
+}
+div.css-1w47qe3.css-1h3rtzg.css-13udsys.css-zjik7 {
+  display: none;
+}
+
+div.css-2o6p8u.css-ht7vqw.css-zjik7 {
+  display: none
+
+}
+
+div.css-2o6p8u.css-1cf1pdz.css-zjik7 {
+  display: none;
+}
+
+div.css-olmhc8 {
+  display: none;
+}
+
+div.css-1w47qe3.css-nf5ok7.css-zjik7 {
+  display: none;
+}
+
+div.css-cdi18r {
+  display: none;
+}
+
+div.css-1bz6gsh {
+  display: none;
+}
+
+div.css-1h3rtzg.css-f7ay7b.css-1f24w3z.css-zjik7 {
+  display: none
+
+}
+
+div.css-zfsynn.css-zjik7 {
+  display: none;
+}
+
+h3.css-1fjc0ae {
+  display: none;
+}
+
+div.css-13j2pbh.css-zjik7 {
+  display: none;
+}
+
+a.css-1fs4cbo {
+  display: none
+
+}
+
+div.css-1ew3v6d.css-zjik7 {
+  display: none;
+}
+
+button.css-n26gcp {
+  display: none;
+}
+
+button.css-bme6ew {
+  display: none;
+}
+
+button.css-5hbj31 {
+  display: none;
+}
+
+button.css-644ij0 {
+  display: none;
+}
+
+a.css-6zspex {
+	visibility: hidden;
+}
+
+a.css-6zspex:before {
+	content: " Bien, ahora te vamos a redirigir a la pagina de descargas, en el momento que tu logo se termine de visualizar en pantalla, podras descargar y enviar tu logo por correo! Por favor presiona AQUI. ";
+	visibility:visible;
+}
+
+span.css-4y37cq {
+	visibility: hidden;
+}
+
+span.css-4y37cq:before {
+	content: " ¿Todo listo? ¡Perfecto! toca aqui para ir a descargar tu logo :) ";
+	visibility:visible;
+}
+
+button span svg:before {
+  	content: " ¿Todo listo? ¡Perfecto! toca aqui para ir a descargar tu logo :) ";
+	visibility:visible;
+}
+
+button.css-1h1jopy {
+  display: none
+
+}
+
+span button img {
+  display: none;
+}
+
+button.css-vvahw7 {
+  display: none;
+}
+
+span.css-1r55dxj {
   display: none;
 }
