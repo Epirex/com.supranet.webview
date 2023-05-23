@@ -16,14 +16,4 @@
 
     </WebView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/round_file_download_white_48dp"
-        app:backgroundTint="@color/design_default_color_primary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

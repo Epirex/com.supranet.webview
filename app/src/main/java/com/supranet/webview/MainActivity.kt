@@ -15,7 +15,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -30,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var saveButton: FloatingActionButton
     private lateinit var passwordDialog: Dialog
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -40,6 +38,11 @@ class MainActivity : AppCompatActivity() {
             refreshWebView()
             true
         }
+        val downloadItem = menu?.findItem(R.id.action_download)
+        downloadItem?.setOnMenuItemClickListener {
+            downloadSVG()
+            true
+        }
         return true
     }
 
@@ -47,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         val webView = findViewById<WebView>(R.id.webview)
         webView.reload()
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.settings -> {
@@ -59,6 +61,9 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_home -> {
                 webView.loadUrl("https://looka.com/logo-maker")
+                true
+            }
+            R.id.action_download -> {
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -210,44 +215,6 @@ class MainActivity : AppCompatActivity() {
             }, refreshInterval * 60 * 1000L)
         }
 
-        // Boton para descargar y enviar el archivo SVG
-        saveButton = findViewById(R.id.save_button)
-        saveButton.setOnClickListener {
-            webView.evaluateJavascript(
-                "(function() { return encodeURIComponent(new XMLSerializer().serializeToString(document.querySelector('svg'))); })();"
-            ) { svg ->
-                val decodedSvg = Uri.decode(svg)
-                val contentSvg = decodedSvg.substring(1, decodedSvg.length - 1)
-                val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-                val fileName = "logo_$date.svg"
-                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
-                val outputStream = FileOutputStream(file)
-                outputStream.write(contentSvg.toByteArray(Charsets.UTF_8))
-                outputStream.close()
-                Toast.makeText(
-                    applicationContext,
-                    "Archivo guardado: $fileName",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                // Ventana de correo
-                val alertDialogBuilder = AlertDialog.Builder(this)
-                alertDialogBuilder.setTitle("¡Que buen logo! ahora te lo enviaremos por correo")
-                alertDialogBuilder.setMessage("Ingresa tu dirección de correo electrónico:")
-                val input = EditText(this)
-                alertDialogBuilder.setView(input)
-                alertDialogBuilder.setPositiveButton("Enviar") { dialog, _ ->
-                    val emailAddress = input.text.toString()
-                    SendEmailTask(emailAddress, file).execute()
-                    dialog.dismiss()
-                }
-                alertDialogBuilder.setNegativeButton("Cancelar") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                alertDialogBuilder.show()
-            }
-        }
-
     // Crear el cuadro flotante
     passwordDialog = Dialog(this)
     passwordDialog.setContentView(R.layout.password)
@@ -313,6 +280,42 @@ class MainActivity : AppCompatActivity() {
             passwordDialog.dismiss()
         }
 }
+
+    private fun downloadSVG() {
+        webView.evaluateJavascript(
+            "(function() { return encodeURIComponent(new XMLSerializer().serializeToString(document.querySelector('svg'))); })();"
+        ) { svg ->
+            val decodedSvg = Uri.decode(svg)
+            val contentSvg = decodedSvg.substring(1, decodedSvg.length - 1)
+            val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val fileName = "logo_$date.svg"
+            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+            val outputStream = FileOutputStream(file)
+            outputStream.write(contentSvg.toByteArray(Charsets.UTF_8))
+            outputStream.close()
+            Toast.makeText(
+                applicationContext,
+                "Archivo guardado: $fileName",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            // Ventana de correo
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder.setTitle("¡Que buen logo! ahora te lo enviaremos por correo")
+            alertDialogBuilder.setMessage("Ingresa tu dirección de correo electrónico:")
+            val input = EditText(this)
+            alertDialogBuilder.setView(input)
+            alertDialogBuilder.setPositiveButton("Enviar") { dialog, _ ->
+                val emailAddress = input.text.toString()
+                SendEmailTask(emailAddress, file).execute()
+                dialog.dismiss()
+            }
+            alertDialogBuilder.setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            alertDialogBuilder.show()
+        }
+    }
 
     // Envio del correo electronico en segundo plano
     private inner class SendEmailTask(private val emailAddress: String, private val file: File) :
