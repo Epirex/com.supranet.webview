@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity() {
 
         // Configura un temporizador para actualizar
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "1")
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "0")
         val refreshInterval = refreshIntervalPref!!.toInt()
 
         val handler = Handler(Looper.getMainLooper())
