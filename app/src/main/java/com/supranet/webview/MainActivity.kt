@@ -253,16 +253,18 @@ class MainActivity : AppCompatActivity() {
 
         // Configura un temporizador para actualizar
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val refreshInterval = sharedPrefs.getString("refresh", "1")!!.toInt()
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "0")
+        val refreshInterval = refreshIntervalPref!!.toInt()
 
-        // Configurar un temporizador para refrescar la página
         val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                webView.reload()
-                handler.postDelayed(this, refreshInterval * 60 * 1000L)
-            }
-        }, refreshInterval * 60 * 1000L)
+        if (refreshInterval > 0) {
+            handler.postDelayed(object : Runnable {
+                override fun run() {
+                    webView.reload()
+                    handler.postDelayed(this, refreshInterval * 60 * 1000L)
+                }
+            }, refreshInterval * 60 * 1000L)
+        }
 
         // Crear el cuadro flotante
         passwordDialog = Dialog(this)
