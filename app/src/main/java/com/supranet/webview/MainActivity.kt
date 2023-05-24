@@ -287,33 +287,47 @@ class MainActivity : AppCompatActivity() {
         ) { svg ->
             val decodedSvg = Uri.decode(svg)
             val contentSvg = decodedSvg.substring(1, decodedSvg.length - 1)
-            val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val fileName = "logo_$date.svg"
-            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
-            val outputStream = FileOutputStream(file)
-            outputStream.write(contentSvg.toByteArray(Charsets.UTF_8))
-            outputStream.close()
-            Toast.makeText(
-                applicationContext,
-                "Archivo guardado: $fileName",
-                Toast.LENGTH_SHORT
-            ).show()
+            val fileBytes = contentSvg.toByteArray(Charsets.UTF_8)
 
-            // Ventana de correo
-            val alertDialogBuilder = AlertDialog.Builder(this)
-            alertDialogBuilder.setTitle("¡Que buen logo! ahora te lo enviaremos por correo")
-            alertDialogBuilder.setMessage("Ingresa tu dirección de correo electrónico:")
-            val input = EditText(this)
-            alertDialogBuilder.setView(input)
-            alertDialogBuilder.setPositiveButton("Enviar") { dialog, _ ->
-                val emailAddress = input.text.toString()
-                SendEmailTask(emailAddress, file).execute()
-                dialog.dismiss()
+            // Calcular el peso del archivo SVG
+            if (fileBytes.size < 1024) {
+                val alertDialogBuilder = AlertDialog.Builder(this)
+                alertDialogBuilder.setTitle("Archivo demasiado pequeño")
+                alertDialogBuilder.setMessage("El archivo SVG pesa menos de 1KB. ¡No es un logo!\n" +
+                        "Por favor continua con los siguientes pasos para finalizar tu logo.")
+                alertDialogBuilder.setPositiveButton("Aceptar") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                alertDialogBuilder.show()
+            } else {
+                val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                val fileName = "logo_$date.svg"
+                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+                val outputStream = FileOutputStream(file)
+                outputStream.write(fileBytes)
+                outputStream.close()
+                Toast.makeText(
+                    applicationContext,
+                    "Archivo guardado: $fileName",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Ventana de correo
+                val alertDialogBuilder = AlertDialog.Builder(this)
+                alertDialogBuilder.setTitle("¡Que buen logo! ahora te lo enviaremos por correo")
+                alertDialogBuilder.setMessage("Ingresa tu dirección de correo electrónico:")
+                val input = EditText(this)
+                alertDialogBuilder.setView(input)
+                alertDialogBuilder.setPositiveButton("Enviar") { dialog, _ ->
+                    val emailAddress = input.text.toString()
+                    SendEmailTask(emailAddress, file).execute()
+                    dialog.dismiss()
+                }
+                alertDialogBuilder.setNegativeButton("Cancelar") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                alertDialogBuilder.show()
             }
-            alertDialogBuilder.setNegativeButton("Cancelar") { dialog, _ ->
-                dialog.dismiss()
-            }
-            alertDialogBuilder.show()
         }
     }
 
