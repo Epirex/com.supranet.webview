@@ -84,6 +84,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Eliminaremos el nombre de la App por el momento
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
