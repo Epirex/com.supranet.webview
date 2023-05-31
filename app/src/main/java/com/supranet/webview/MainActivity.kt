@@ -364,8 +364,8 @@ class MainActivity : AppCompatActivity() {
         props["mail.smtp.ssl.enable"] = "true"
 
         // Remitente
-        val username = "supranet.logos@gmail.com"
-        val password = "npmtportarqirmyk"
+        val username = "minceit.logo@gmail.com"
+        val password = "rlazqoxkaqoplqnj"
 
         val session = Session.getInstance(props, object : Authenticator() {
             override fun getPasswordAuthentication(): PasswordAuthentication {
@@ -377,7 +377,7 @@ class MainActivity : AppCompatActivity() {
             val message = MimeMessage(session)
             message.setFrom(InternetAddress(username))
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailAddress))
-            message.subject = "Supranet: ¡Tu nuevo logo ya esta aqui!"
+            message.subject = "Ministerio de Ciencia e Innovación Tecnologica: ¡Tu nuevo logo ya esta aqui!"
 
             // No me pregunten que es esto, lo saque de stackoverflow y me permitio enviar el archivo SVG
             val mc = CommandMap.getDefaultCommandMap() as MailcapCommandMap
