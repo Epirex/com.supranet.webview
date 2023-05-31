@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
+    private var lookaUrl: String? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -110,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
+                lookaUrl = url
                 injectCSS()
             }
 
@@ -390,7 +392,7 @@ class MainActivity : AppCompatActivity() {
 
             val multipart = MimeMultipart()
             val messageBodyPart = MimeBodyPart()
-            messageBodyPart.setText("¡Ya tienes disponible tu logo personalizado! Recuerda que tu logo se guardo en formato SVG, el mismo puede ser utilizado en cualquier editor (Recomendamos utilizar Canva por su facil usabilidad) Si deseas visualizar tu logo ahora mismo puedes hacerlo desde tu navegador favorito.")
+            messageBodyPart.setText("¡Ya tienes disponible tu logo personalizado! Recuerda que tu logo se guardo en formato SVG, el mismo puede ser utilizado en cualquier editor (Recomendamos utilizar Canva) Si deseas visualizar tu logo ahora mismo puedes hacerlo desde tu navegador favorito a traves del siguiente URL: $lookaUrl")
             multipart.addBodyPart(messageBodyPart)
 
             val attachmentBodyPart = MimeBodyPart()
