@@ -295,14 +295,11 @@ class MainActivity : AppCompatActivity() {
 
             // Calcular el peso del archivo SVG
             if (fileBytes.size < 1024) {
-                val alertDialogBuilder = AlertDialog.Builder(this)
-                alertDialogBuilder.setTitle("Archivo demasiado pequeño")
-                alertDialogBuilder.setMessage("El archivo SVG pesa menos de 1KB. ¡No es un logo!\n" +
-                        "Por favor continua con los siguientes pasos para finalizar tu logo.")
-                alertDialogBuilder.setPositiveButton("Aceptar") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                alertDialogBuilder.show()
+                Toast.makeText(
+                    applicationContext,
+                    "Por favor continua con los siguientes pasos para finalizar tu logo.",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                 val fileName = "logo_$date.svg"
