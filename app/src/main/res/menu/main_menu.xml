@@ -3,17 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_home"
-        android:icon="@drawable/round_home_white_48dp"
+        android:icon="@drawable/home_black_48dp"
         android:title="Volver al inicio"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_refresh"
-        android:icon="@drawable/outline_refresh_white_48dp"
+        android:icon="@drawable/refresh_black_48dp"
         android:title="Refrescar"
         app:showAsAction="always" />
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/outline_settings_white_48dp"
+        android:icon="@drawable/settings_black_48dp"
         android:title="Configuraciones"
         app:showAsAction="always" />
 </menu>
