@@ -26,10 +26,6 @@
             android:exported="false"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".MainActivity2"
-            android:exported="false"
-            android:label="@string/title_activity_main2" />
-        <activity
             android:name=".MainActivity"
             android:theme="@style/SplashTheme"
             android:exported="true" >
