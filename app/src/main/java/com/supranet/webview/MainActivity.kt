@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshWebView() {
-        val webView = findViewById<WebView>(R.id.webview)
         webView.reload()
     }
 
@@ -46,9 +45,6 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.settings -> {
                 showPasswordDialog()
-                true
-            }
-            R.id.action_refresh -> {
                 true
             }
             R.id.action_home -> {
@@ -62,13 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onBackPressed() {
-
-        // To execute back press
-        // super.onBackPressed()
-
-        // To do something else
         Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
             .show()
     }
@@ -80,6 +70,9 @@ class MainActivity : AppCompatActivity() {
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+        // Mantener pantalla siempre encendida
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
@@ -117,47 +110,94 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Ejecutar la tarea asincrónica
-        networkTask.execute()
+        // Ejecutar la tarea asincrónica (Desactivado por ahora)
+        //networkTask.execute()
 
-        webView = findViewById(R.id.webview)
-        webView.webViewClient = WebViewClient()
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        // Crear el cuadro flotante
+        passwordDialog = Dialog(this)
+        passwordDialog.setContentView(R.layout.password)
+        passwordDialog.setCancelable(false)
+
+        // Botones, muchos botones
+        val button1 = passwordDialog.findViewById<Button>(R.id.button1)
+        val button2 = passwordDialog.findViewById<Button>(R.id.button2)
+        val button3 = passwordDialog.findViewById<Button>(R.id.button3)
+        val button4 = passwordDialog.findViewById<Button>(R.id.button4)
+        val button5 = passwordDialog.findViewById<Button>(R.id.button5)
+        val button6 = passwordDialog.findViewById<Button>(R.id.button6)
+        val button7 = passwordDialog.findViewById<Button>(R.id.button7)
+        val button8 = passwordDialog.findViewById<Button>(R.id.button8)
+        val button9 = passwordDialog.findViewById<Button>(R.id.button9)
+        val button0 = passwordDialog.findViewById<Button>(R.id.button0)
+        val buttonClear = passwordDialog.findViewById<Button>(R.id.buttonClear)
+        val buttonExit = passwordDialog.findViewById<Button>(R.id.buttonExit)
+        val sendButton = passwordDialog.findViewById<Button>(R.id.buttonDone)
+        val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
+
+        button1.setOnClickListener {
+            passwordEditText.append("1")
+        }
+        button2.setOnClickListener {
+            passwordEditText.append("2")
+        }
+        button3.setOnClickListener {
+            passwordEditText.append("3")
+        }
+        button4.setOnClickListener {
+            passwordEditText.append("4")
+        }
+        button5.setOnClickListener {
+            passwordEditText.append("5")
+        }
+        button6.setOnClickListener {
+            passwordEditText.append("6")
+        }
+        button7.setOnClickListener {
+            passwordEditText.append("7")
+        }
+        button8.setOnClickListener {
+            passwordEditText.append("8")
+        }
+
+        button9.setOnClickListener {
+            passwordEditText.append("9")
+        }
+
+        button0.setOnClickListener {
+            passwordEditText.append("0")
+        }
+        buttonClear.setOnClickListener {
+            val text = passwordEditText.text
+            if (text.isNotEmpty()) {
+                passwordEditText.text.delete(text.length - 1, text.length)
+            }
+        }
+        buttonExit.setOnClickListener {
+            passwordEditText.text.clear()
+            passwordDialog.dismiss()
+        }
+        sendButton.setOnClickListener {
+            checkPassword()
+            passwordEditText.text.clear()
+        }
 
         // Configurar WebView
+        webView = findViewById(R.id.webview)
+        webView.webViewClient = WebViewClient()
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webSettings.allowFileAccess = true
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
         webSettings.useWideViewPort = true
-        webView.setKeepScreenOn(true)
 
         // Cargar URL
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val urlPreference = sharedPreferences.getString("url_preference", "http://www.supranet.ar")
         webView.loadUrl(urlPreference.toString())
 
-        // Cargar URL local
-        val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
-        if (loadLocalHtml) {
-            val file = File(getExternalFilesDir(null), "index.html")
-            if (!file.exists()) {
-                Toast.makeText(this, "El archivo HTML no existe!", Toast.LENGTH_SHORT).show()
-                return
-            }
-            webView.loadDataWithBaseURL(
-                "file://${file.parent}/",
-                file.readText(),
-                "text/html",
-                "UTF-8",
-                null
-            )
-        }
-
-        // check toolbar
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val hideToolbarPref = prefs.getBoolean("hide_toolbar", false)
+        // Ocultar el ActionBar
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()
@@ -215,20 +255,14 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(fileName)
                 .setDescription("Downloading $fileName")
                 .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, fileName)
-                //.setRequiresCharging(false)
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
 
-            // Get the DownloadManager service and enqueue the download request
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val downloadId = downloadManager.enqueue(downloadRequest)
 
-            // Set a BroadcastReceiver to listen for the download completion
             val onComplete = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
-                    // Get the download ID from the intent
                     val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-
-                    // If this is the completed download of the CSS file, load it into the WebView
                     if (id == downloadId) {
                         val downloadDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                         val cssFile = File(downloadDir, fileName)
@@ -241,18 +275,14 @@ class MainActivity : AppCompatActivity() {
                                     "   document.head.appendChild(css);" +
                                     "})();"
                         ) { result ->
-                            // JavaScript evaluation completed
                         }
                     }
                 }
             }
-
-            // Register the BroadcastReceiver to listen for the download completion
             registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         }
 
         // Configura un temporizador para actualizar
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "0")
         val refreshInterval = refreshIntervalPref!!.toInt()
 
@@ -266,68 +296,21 @@ class MainActivity : AppCompatActivity() {
             }, refreshInterval * 60 * 1000L)
         }
 
-        // Crear el cuadro flotante
-        passwordDialog = Dialog(this)
-        passwordDialog.setContentView(R.layout.password)
-        passwordDialog.setCancelable(false)
-
-        // Configurar el botón de enviar
-        val sendButton = passwordDialog.findViewById<Button>(R.id.buttonDone)
-        sendButton.setOnClickListener { checkPassword() }
-
-        val button1 = passwordDialog.findViewById<Button>(R.id.button1)
-        val button2 = passwordDialog.findViewById<Button>(R.id.button2)
-        val button3 = passwordDialog.findViewById<Button>(R.id.button3)
-        val button4 = passwordDialog.findViewById<Button>(R.id.button4)
-        val button5 = passwordDialog.findViewById<Button>(R.id.button5)
-        val button6 = passwordDialog.findViewById<Button>(R.id.button6)
-        val button7 = passwordDialog.findViewById<Button>(R.id.button7)
-        val button8 = passwordDialog.findViewById<Button>(R.id.button8)
-        val button9 = passwordDialog.findViewById<Button>(R.id.button9)
-        val button0 = passwordDialog.findViewById<Button>(R.id.button0)
-        val buttonClear = passwordDialog.findViewById<Button>(R.id.buttonClear)
-        val buttonExit = passwordDialog.findViewById<Button>(R.id.buttonExit)
-        val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
-        button1.setOnClickListener {
-            passwordEditText.append("1")
-        }
-        button2.setOnClickListener {
-            passwordEditText.append("2")
-        }
-        button3.setOnClickListener {
-            passwordEditText.append("3")
-        }
-        button4.setOnClickListener {
-            passwordEditText.append("4")
-        }
-        button5.setOnClickListener {
-            passwordEditText.append("5")
-        }
-        button6.setOnClickListener {
-            passwordEditText.append("6")
-        }
-        button7.setOnClickListener {
-            passwordEditText.append("7")
-        }
-        button8.setOnClickListener {
-            passwordEditText.append("8")
-        }
-
-        button9.setOnClickListener {
-            passwordEditText.append("9")
-        }
-
-        button0.setOnClickListener {
-            passwordEditText.append("0")
-        }
-        buttonClear.setOnClickListener {
-            val text = passwordEditText.text
-            if (text.isNotEmpty()) {
-                passwordEditText.text.delete(text.length - 1, text.length)
+        // Cargar URL local
+        val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
+        if (loadLocalHtml) {
+            val file = File(getExternalFilesDir(null), "index.html")
+            if (!file.exists()) {
+                Toast.makeText(this, "El archivo HTML no existe!", Toast.LENGTH_SHORT).show()
+                return
             }
-        }
-        buttonExit.setOnClickListener {
-            passwordDialog.dismiss()
+            webView.loadDataWithBaseURL(
+                "file://${file.parent}/",
+                file.readText(),
+                "text/html",
+                "UTF-8",
+                null
+            )
         }
     }
 
@@ -336,16 +319,12 @@ class MainActivity : AppCompatActivity() {
         passwordDialog.show()
     }
 
-    //val settingsButton = findViewById<Button>(R.id.settings)
-    //settingsButton.setOnClickListener
-    //{ showPasswordDialog() }
-
     private fun checkPassword() {
         val passwordEditText = passwordDialog.findViewById<EditText>(R.id.passwordEditText)
         val password = passwordEditText.text.toString()
 
         // Verificar la contraseña
-        if (password == "1234") {
+        if (password == "3434") {
             passwordDialog.dismiss()
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
