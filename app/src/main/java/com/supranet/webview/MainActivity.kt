@@ -4,6 +4,8 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.*
 import android.util.Base64
@@ -13,6 +15,7 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.File
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_home -> {
-                webView.loadUrl("https://looka.com/logo-maker")
+                webView.loadUrl("http://poster.com.ar/tapalogos")
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -75,6 +78,14 @@ class MainActivity : AppCompatActivity() {
 
         // Eliminaremos el nombre de la App por el momento
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        // Cambiamos el color del ActionBar asi porque no me acuerdo como cambiarlo en los XML
+        val actionBar: ActionBar?
+        actionBar = supportActionBar
+        val colorDrawable = ColorDrawable(Color.parseColor("#FFAFA1"))
+        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(colorDrawable)
+        }
 
         // Mantener pantalla siempre encendida
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -162,7 +173,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", "https://looka.com/logo-maker")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://poster.com.ar/tapalogos")
         webView.loadUrl(urlPreference.toString())
 
         // Configurar un WebViewClient para inyectar el CSS personalizado en cada página web cargada

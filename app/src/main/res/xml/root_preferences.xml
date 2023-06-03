@@ -6,7 +6,7 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="https://looka.com/logo-maker"
+            app:defaultValue="http://poster.com.ar/tapalogos"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL" />
