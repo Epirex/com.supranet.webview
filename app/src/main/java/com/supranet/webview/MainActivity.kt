@@ -380,18 +380,20 @@ class MainActivity : AppCompatActivity() {
             CommandMap.setDefaultCommandMap(mc)
 
             val multipart = MimeMultipart()
-            val messageBodyPart = MimeBodyPart()
-            messageBodyPart.setText("¡Ya tienes disponible tu logo personalizado! Recuerda que tu logo se guardo en formato SVG, el mismo puede ser utilizado en cualquier editor (Recomendamos utilizar Canva) Si deseas visualizar tu logo ahora mismo puedes hacerlo desde tu navegador favorito a traves del siguiente URL: $lookaUrl")
-            multipart.addBodyPart(messageBodyPart)
+
+            val htmlContent = "<html><img src=\"https://raw.githubusercontent.com/Epirex/turismo/main/logoministerio.png\"><br><h3>¡Ya tienes disponible tu logo personalizado!</h3><p>Recuerda que tu logo se guardó en formato SVG, el mismo puede ser utilizado en cualquier editor (Recomendamos utilizar Canva). Si deseas visualizar tu logo ahora mismo, puedes hacerlo desde tu navegador favorito a través del siguiente URL: $lookaUrl</p></body></html>"
+            val htmlBodyPart = MimeBodyPart()
+            htmlBodyPart.setContent(htmlContent, "text/html")
+            multipart.addBodyPart(htmlBodyPart)
 
             val attachmentBodyPart = MimeBodyPart()
             val fileDataSource = FileDataSource(file)
             attachmentBodyPart.dataHandler = DataHandler(fileDataSource)
             attachmentBodyPart.fileName = MimeUtility.encodeText(file.name)
             multipart.addBodyPart(attachmentBodyPart)
+
             message.setContent(multipart)
 
-            // Enviar el mensaje de correo electrónico
             Transport.send(message)
 
             runOnUiThread {
