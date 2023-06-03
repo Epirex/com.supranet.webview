@@ -55,7 +55,7 @@ p.header__paragraph {
 	visibility: hidden;
 }
 p.header__paragraph:before {
-	content: " Combinamos sus preferencias de logotipos con inteligencia artificial para ayudarlo a crear un logotipo personalizado que le encantara. Todo lo que se necesita son unos pocos clics y cinco minutos. ";
+	content: "Combinamos sus preferencias de logotipos con inteligencia artificial para ayudarlo a crear un logotipo personalizado. Todo lo que se necesita son unos pocos clics y cinco minutos.";
 	visibility:visible;
   float:left;
 }
@@ -64,21 +64,16 @@ h1.header__title {
   	visibility: hidden;
 }
 h1.header__title:before {
-	content: " Creador de logos con Inteligencia Artificial ";
+	content: "Creador de logos con Inteligencia Artificial";
 	visibility:visible;
   float:left;
-}
-
-div.css-17hxjdc {
-  display: none
-
 }
 
 h2.css-ldqqws {
   visibility: hidden;
 }
 h2.css-ldqqws::before {
-  content: "Necesitamos informacion sobre tu emprendimiento. 1. Dinos a que rubro pertenece. 2. Selecciona un logo para inspiracion. 3. Elije un color. 4. Un eslogan. 5. Por ultimo un simbolo. ";
+  content: "Necesitamos datos sobre tu emprendimiento. 1. Necesitamos el rubro. 2. Selecciona un logo de referencia. 3. Selecciona un color. 4. Un eslogan. 5. Finalmente un icono.";
   visibility: visible;
 }
 
@@ -152,15 +147,21 @@ p.css-u9fdvv {
   visibility: hidden;
 }
 p.css-u9fdvv::before {
-  content: " Elije el que mas te guste y nosotros te lo enviamos por correo.";
+  content: "Selecciona un logo que te guste y nosotros te lo enviamos por correo.";
   visibility: visible;
 }
 
 h4.css-1im6sg6 {
   visibility: hidden;
+  font-size: 35px;
 }
+
+button span img {
+  display: none;
+}
+
 h4.css-1im6sg6::before {
-  content: "Tu logo ya esta listo!";
+  content: "Tu nuevo logo se encuentra listo";
   visibility: visible;
 }
 div.css-jhxqpp {
@@ -245,7 +246,7 @@ a.css-6zspex {
 }
 
 a.css-6zspex:before {
-	content: " Bien, ahora te vamos a redirigir a la pagina de descargas, en el momento que tu logo se termine de visualizar en pantalla, podras descargar y enviar tu logo por correo! Por favor presiona AQUI. ";
+	content: "Bien, ahora te vamos a redirigir a la pantalla de descargas, en el momento que tu logo se termine de visualizar en pantalla, presiona el icono de descargas y te enviaremos tu logo por correo. Por favor toque este texto o ventana para seguir.";
 	visibility:visible;
 }
 
@@ -254,12 +255,12 @@ span.css-4y37cq {
 }
 
 span.css-4y37cq:before {
-	content: " ¿Todo listo? ¡Perfecto! toca aqui para ir a descargar tu logo :) ";
+	content: "Descargar logo";
 	visibility:visible;
 }
 
 button span svg:before {
-  	content: " ¿Todo listo? ¡Perfecto! toca aqui para ir a descargar tu logo :) ";
+  	content: "Descargar logo";
 	visibility:visible;
 }
 
@@ -298,4 +299,20 @@ div.css-10ek3sv {
 
 div.css-1mwu68j {
   display: none;
+}
+
+div a img {
+  display: none
+}
+
+button.css-644ij0 {
+  display: none
+}
+
+body.page-template-default.page.page-id-13859.page-parent.page-logo-maker {
+background-image: url("https://raw.githubusercontent.com/Epirex/turismo/main/backgroundgl3.jpg");
+}
+
+footer.footer {
+  display: none
 }
