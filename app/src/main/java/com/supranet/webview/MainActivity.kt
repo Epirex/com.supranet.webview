@@ -202,46 +202,44 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()
+                // Agregar el listener onTouch para mostrar u ocultar la ActionBar
+                val gestureDetector = GestureDetector(this@MainActivity, object : GestureDetector.SimpleOnGestureListener() {
+                        override fun onFling(
+                            e1: MotionEvent,
+                            e2: MotionEvent,
+                            velocityX: Float,
+                            velocityY: Float
+                        ): Boolean {
+                            // Obtiene las dimensiones de la pantalla
+                            val displayMetrics = resources.displayMetrics
+                            val screenHeight = displayMetrics.heightPixels
+
+                            // Define la región del borde superior de la pantalla
+                            val topRegion = 50 // En píxeles
+
+                            // Verifica si la posición inicial del evento se encuentra dentro de la región del borde superior de la pantalla
+                            if (e1?.y ?: 0f < topRegion && e2?.y ?: 0f >= topRegion) {
+                                // Muestra el ActionBar
+                                supportActionBar?.show()
+
+                                // Oculta el ActionBar después de 3 segundos
+                                Handler().postDelayed({
+                                    supportActionBar?.hide()
+                                }, 2500)
+                            }
+
+                            return super.onFling(e1, e2, velocityX, velocityY)
+                        }
+                    })
+
+                // Asigna el GestureDetector al WebView
+                webView.setOnTouchListener { _, event ->
+                    gestureDetector.onTouchEvent(event)
+                    false
+                }
             } else {
                 show()
             }
-        }
-
-        // Agregar el listener onTouch para mostrar u ocultar la ActionBar
-        val gestureDetector =
-            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onFling(
-                    e1: MotionEvent,
-                    e2: MotionEvent,
-                    velocityX: Float,
-                    velocityY: Float
-                ): Boolean {
-                    // Obtiene las dimensiones de la pantalla
-                    val displayMetrics = resources.displayMetrics
-                    val screenHeight = displayMetrics.heightPixels
-
-                    // Define la región del borde superior de la pantalla
-                    val topRegion = 50 // En píxeles
-
-                    // Verifica si la posición inicial del evento se encuentra dentro de la región del borde superior de la pantalla
-                    if (e1?.y ?: 0f < topRegion && e2?.y ?: 0f >= topRegion) {
-                        // Muestra el ActionBar
-                        supportActionBar?.show()
-
-                        // Oculta el ActionBar después de 3 segundos
-                        Handler().postDelayed({
-                            supportActionBar?.hide()
-                        }, 2500)
-                    }
-
-                    return super.onFling(e1, e2, velocityX, velocityY)
-                }
-            })
-
-        // Asigna el GestureDetector al WebView
-        webView.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            false
         }
 
         // Configura un temporizador para actualizar
