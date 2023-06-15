@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Ejecutar la tarea asincrónica
-        networkTask.execute()
+        //networkTask.execute()
 
         webView = findViewById(R.id.webview)
         webView.webViewClient = WebViewClient()
