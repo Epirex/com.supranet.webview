@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.supradesign
 
 import android.content.Intent
 import android.os.Bundle

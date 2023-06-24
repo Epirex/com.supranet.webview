@@ -1,4 +1,4 @@
-package com.supranet.webview.ui.home
+package com.supranet.supradesign.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

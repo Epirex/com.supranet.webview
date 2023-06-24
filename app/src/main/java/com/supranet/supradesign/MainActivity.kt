@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.supradesign
 
 import android.app.AlertDialog
 import android.app.Dialog
