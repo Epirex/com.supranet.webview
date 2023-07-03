@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://localhost:8000/")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -197,10 +197,10 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://www.supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://localhost:8000/")
         handler.postDelayed({
             webView.loadUrl(urlPreference.toString())
-        }, 5000)
+        }, 15000)
 
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)

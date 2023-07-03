@@ -6,7 +6,7 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="http://www.supranet.ar"
+            app:defaultValue="http://localhost:8000/"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL" />
