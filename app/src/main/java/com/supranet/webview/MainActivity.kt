@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
+    private lateinit var handler: Handler
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -73,6 +74,9 @@ class MainActivity : AppCompatActivity() {
 
         // Mantener pantalla siempre encendida
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Usamos handler para que xampp tenga tiempo de iniciar y asi evitar errores de carga local
+        handler = Handler(Looper.getMainLooper())
 
         // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
@@ -194,7 +198,9 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPreferences.getString("url_preference", "http://www.supranet.ar")
-        webView.loadUrl(urlPreference.toString())
+        handler.postDelayed({
+            webView.loadUrl(urlPreference.toString())
+        }, 3000)
 
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
