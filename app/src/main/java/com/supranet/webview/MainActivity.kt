@@ -190,6 +190,7 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
         webSettings.useWideViewPort = true
+        webSettings.displayZoomControls = false
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
