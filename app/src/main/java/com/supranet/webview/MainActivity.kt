@@ -195,8 +195,6 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowFileAccess = true
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
-        webSettings.useWideViewPort = true
-        webSettings.displayZoomControls = false
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -204,6 +202,18 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed({
             webView.loadUrl(urlPreference.toString())
         }, 15000)
+
+        // Aplicar configuraciones de zoom después de que la página termine de cargarse
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+
+                webSettings.useWideViewPort = true
+                webSettings.displayZoomControls = false
+                webSettings.builtInZoomControls = false
+                webSettings.setSupportZoom(false)
+            }
+        }
 
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
