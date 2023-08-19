@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
             refreshWebView()
+            supportActionBar?.hide()
             true
         }
         return true
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
                 val urlPreference =
                     sharedPrefs.getString("url_preference", "http://localhost:8000/")
                 webView.loadUrl(urlPreference.toString())
+                supportActionBar?.hide()
                 true
             }
             else -> super.onOptionsItemSelected(item)
