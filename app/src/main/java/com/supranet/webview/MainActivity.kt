@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://www.supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://homeassistant.local:8123")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -193,11 +193,11 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://www.supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://homeassistant.local:8123")
         webView.loadUrl(urlPreference.toString())
 
         // Ocultar el ActionBar
-        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()

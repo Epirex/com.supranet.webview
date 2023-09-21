@@ -6,7 +6,7 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="http://www.supranet.ar"
+            app:defaultValue="http://homeassistant.local:8123"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL" />
@@ -18,7 +18,7 @@
             app:title="Carga un URL local" />
 
         <CheckBoxPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:key="hide_toolbar"
             app:summary="Oculta el toolbar en el webview"
             app:title="Ocultar el toolbar" />
