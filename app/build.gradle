@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.supranet.webview'
+    namespace 'com.supranet.plazadomotica'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.supranet.webview"
+        applicationId "com.supranet.plazadomotica"
         minSdk 23
         targetSdk 33
         versionCode 1

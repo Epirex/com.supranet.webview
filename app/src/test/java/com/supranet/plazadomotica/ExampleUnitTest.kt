@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.plazadomotica
 
 import org.junit.Test
 

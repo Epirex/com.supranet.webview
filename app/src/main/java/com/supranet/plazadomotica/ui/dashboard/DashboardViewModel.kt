@@ -1,4 +1,4 @@
-package com.supranet.webview.ui.dashboard
+package com.supranet.plazadomotica.ui.dashboard
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
