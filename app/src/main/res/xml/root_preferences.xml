@@ -35,7 +35,7 @@
             app:title="Configuración del sistema" />
 
         <ListPreference
-            app:key="refresh"
+            app:key="refresh_interval"
             app:title="Temporizador de pagina"
             app:summary="Establecer tiempo de refresco de la pagina"
             app:entries="@array/refresh_options"
