@@ -1,6 +1,7 @@
 package com.supranet.webview
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +36,14 @@ class SettingsActivity : AppCompatActivity() {
             val openSystemSettingsPreference = findPreference<Preference>("open_settings")
             openSystemSettingsPreference?.setOnPreferenceClickListener {
                 val intent = Intent(Settings.ACTION_SETTINGS)
+                startActivity(intent)
+                true
+            }
+
+            val appDetailsPreference = findPreference<Preference>("app_details_preference")
+            appDetailsPreference?.setOnPreferenceClickListener {
+                val packageName = requireContext().packageName
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
                 startActivity(intent)
                 true
             }
