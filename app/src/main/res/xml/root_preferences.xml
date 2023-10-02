@@ -9,30 +9,35 @@
             app:defaultValue="http://localhost:8000/"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
-            app:title="Carga un URL" />
+            app:title="Carga un URL desde Internet"
+            android:icon="@drawable/android_http" />
 
         <CheckBoxPreference
             app:defaultValue="false"
             app:key="enable_local"
-            app:summary="Carga cualquier HTML desde la memoria interna"
-            app:title="Carga un URL local" />
+            app:summary="Carga cualquier HTML desde la ruta file:///storage/emulated/0/Android/data/com.supranet.webview/files/"
+            app:title="Carga un URL local"
+            android:icon="@drawable/android_html" />
 
         <CheckBoxPreference
             app:defaultValue="false"
             app:key="hide_toolbar"
-            app:summary="Oculta el toolbar en el webview"
-            app:title="Ocultar el toolbar" />
+            app:summary="Esta opción permite ocultar la barra de herramientas o toolbar en la pantalla principal"
+            app:title="Ocultar la barra de herramientas"
+            android:icon="@drawable/android_toolbar" />
 
         <CheckBoxPreference
             android:key="custom_css"
             android:title="Descargar CSS"
             android:summary="Descarga y aplica un archivo CSS para personalizar la página"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            android:icon="@drawable/android_css" />
 
         <Preference
             app:key="open_settings"
             app:summary="Abre la configuración del sistema de Android"
-            app:title="Configuración del sistema" />
+            app:title="Configuración del sistema"
+            android:icon="@drawable/android_settings" />
 
         <ListPreference
             app:key="refresh_interval"
@@ -40,11 +45,19 @@
             app:summary="Establecer tiempo de refresco de la pagina"
             app:entries="@array/refresh_options"
             app:entryValues="@array/refresh_values"
-            app:defaultValue="0" />
+            app:defaultValue="0"
+            android:icon="@drawable/android_refresh" />
 
         <Preference
             android:key="android_id_preference"
-            android:title="Android ID" />
+            android:title="Android ID"
+            android:icon="@drawable/android_id" />
+
+        <Preference
+            android:key="app_details_preference"
+            android:title="Detalles de la Aplicación"
+            android:summary="Ver detalles de la aplicación en el sistema"
+            android:icon="@drawable/android_info" />
 
     </PreferenceCategory>
 
