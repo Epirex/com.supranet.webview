@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
-    private lateinit var handler: Handler
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -76,9 +75,6 @@ class MainActivity : AppCompatActivity() {
 
         // Mantener pantalla siempre encendida
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        // Usamos handler para que xampp tenga tiempo de iniciar y asi evitar errores de carga local
-        handler = Handler(Looper.getMainLooper())
 
         // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
@@ -199,9 +195,7 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPreferences.getString("url_preference", "http://localhost:8000/")
-        handler.postDelayed({
-            webView.loadUrl(urlPreference.toString())
-        }, 15000)
+        webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
