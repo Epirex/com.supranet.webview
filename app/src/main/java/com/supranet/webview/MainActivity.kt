@@ -17,8 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
+import java.net.ServerSocket
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
+    private lateinit var serverSocket: ServerSocket
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -51,7 +54,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://localhost:8000/")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar")
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -69,6 +72,9 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Abrir conexion con la App control remoto
+        initServerSocket()
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -194,7 +200,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://localhost:8000/")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
         webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
@@ -343,6 +349,36 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         } else {
             Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun initServerSocket() {
+        Thread {
+            try {
+                serverSocket = ServerSocket(12345)
+                while (true) {
+                    val clientSocket = serverSocket.accept()
+                    val input = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
+                    val receivedUrl = input.readLine()
+
+                    runOnUiThread {
+                        webView.loadUrl(receivedUrl)
+                    }
+
+                    clientSocket.close()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            serverSocket.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 }
