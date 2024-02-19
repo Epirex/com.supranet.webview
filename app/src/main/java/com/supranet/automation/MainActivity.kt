@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.automation
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://homeassistant.local:8123")
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "homeassistant.local:8123")
         webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
@@ -216,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Ocultar el ActionBar
-        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()

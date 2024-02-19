@@ -2,7 +2,7 @@
 <resources>
     <color name="seed">#6750A4</color>
     <color name="supranet">#2596BE</color>
-    <color name="md_theme_light_primary">#6750A4</color>
+    <color name="md_theme_light_primary">#03A9F4</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#EADDFF</color>
     <color name="md_theme_light_onPrimaryContainer">#21005D</color>

@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.automation
 
 import android.os.Bundle
 import android.view.WindowManager
