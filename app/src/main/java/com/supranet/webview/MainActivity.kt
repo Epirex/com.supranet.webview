@@ -19,9 +19,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.ServerSocket
-import java.net.URL
+import java.net.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,6 +70,10 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Establecer la dirección IP como título del Action Bar
+        val ipAddress = getLocalIpAddress()
+        supportActionBar?.title = "IP: $ipAddress"
 
         // Abrir conexion con la App control remoto
         initServerSocket()
@@ -373,12 +375,33 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
+    private fun getLocalIpAddress(): String? {
+        try {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val networkInterface = interfaces.nextElement()
+                val addresses = networkInterface.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val address = addresses.nextElement()
+                    if (!address.isLoopbackAddress && address is Inet4Address) {
+                        return address.hostAddress
+                    }
+                }
+            }
+        } catch (e: SocketException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            serverSocket.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        if (::serverSocket.isInitialized) {
+            try {
+                serverSocket.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
     }
 }
