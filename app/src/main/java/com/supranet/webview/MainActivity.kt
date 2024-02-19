@@ -200,6 +200,10 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
 
+        // Fondo temporal del webview, esta comentado para usarlo en casos especificos
+        //webView.setBackgroundResource(R.drawable.fondo);
+        //webView.setBackgroundColor(0x00000000);
+
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
