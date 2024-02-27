@@ -66,10 +66,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
-            .show()
-    }
+    //override fun onBackPressed() {
+    //    Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
+    //        .show()
+    //}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Webview)
