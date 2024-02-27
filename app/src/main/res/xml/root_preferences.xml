@@ -6,7 +6,7 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="http://localhost:8000/"
+            app:defaultValue="http://clubdelmiga.com.ar/lista-de-paginas/"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL desde Internet"
@@ -20,7 +20,7 @@
             android:icon="@drawable/android_html" />
 
         <CheckBoxPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:key="hide_toolbar"
             app:summary="Esta opción permite ocultar la barra de herramientas o toolbar en la pantalla principal"
             app:title="Ocultar la barra de herramientas"

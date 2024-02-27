@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.icu.text.SimpleDateFormat
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -15,11 +19,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
+import java.io.*
 import java.net.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
     private lateinit var serverSocket: ServerSocket
+
+    private val REQUEST_CODE_PERMISSION = 101
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -52,7 +56,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://clubdelmiga.com.ar/lista-de-paginas/")
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -74,6 +78,13 @@ class MainActivity : AppCompatActivity() {
         // Establecer la dirección IP como título del Action Bar
         val ipAddress = getLocalIpAddress()
         supportActionBar?.title = "IP: $ipAddress"
+
+        val fabScreenshot = findViewById<Button>(R.id.btnCaptura)
+        fabScreenshot.setOnClickListener { takeScreenshot() }
+        val btnVolver = findViewById<Button>(R.id.btnVolver)
+        btnVolver.setOnClickListener {
+            webView.loadUrl("http://clubdelmiga.com.ar/lista-de-paginas/")
+        }
 
         // Abrir conexion con la App control remoto
         initServerSocket()
@@ -201,12 +212,12 @@ class MainActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
 
         // Fondo temporal del webview, esta comentado para usarlo en casos especificos
-        //webView.setBackgroundResource(R.drawable.fondo);
-        //webView.setBackgroundColor(0x00000000);
+        webView.setBackgroundResource(R.drawable.fondo);
+        webView.setBackgroundColor(0x00000000);
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://clubdelmiga.com.ar/lista-de-paginas/")
         webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
@@ -222,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Ocultar el ActionBar
-        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()
@@ -396,6 +407,71 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
         return null
+    }
+
+    private fun takeScreenshot() {
+        webView.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                webView.width,
+                View.MeasureSpec.EXACTLY
+            ), View.MeasureSpec.makeMeasureSpec(
+                webView.height,
+                View.MeasureSpec.EXACTLY
+            )
+        )
+        webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
+        webView.isDrawingCacheEnabled = true
+        webView.buildDrawingCache(true)
+        val bitmap = Bitmap.createBitmap(webView.drawingCache)
+        webView.isDrawingCacheEnabled = false
+
+        val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val file = File(
+            picturesDir,
+            "screenshot_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.png"
+        )
+        try {
+            val fos = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            fos.flush()
+            fos.close()
+
+            // Escanea el archivo recién creado para que aparezca en la galería
+            MediaScannerConnection.scanFile(
+                this,
+                arrayOf(file.absolutePath),
+                arrayOf("image/png"),
+                null
+            )
+
+            Toast.makeText(
+                this,
+                "Captura de pantalla guardada en ${file.absolutePath}",
+                Toast.LENGTH_SHORT
+            ).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error al guardar la captura de pantalla", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takeScreenshot()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Permiso denegado para guardar la captura de pantalla",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     override fun onDestroy() {
