@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.Settings
 import android.view.*
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
@@ -229,6 +230,7 @@ class MainActivity : AppCompatActivity() {
                 webSettings.displayZoomControls = false
                 webSettings.builtInZoomControls = false
                 webSettings.setSupportZoom(false)
+                webSettings.textSize = WebSettings.TextSize.NORMAL
             }
         }
 
