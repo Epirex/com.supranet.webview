@@ -17,23 +17,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.BufferedReader
 import java.io.File
-import java.io.IOException
 import java.io.InputStreamReader
-import java.net.*
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
-    private lateinit var serverSocket: ServerSocket
+    private var timer: Timer? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
             refreshWebView()
-            supportActionBar?.hide()
             true
         }
         return true
@@ -52,9 +52,8 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar/marito")
                 webView.loadUrl(urlPreference.toString())
-                supportActionBar?.hide()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -70,13 +69,6 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Establecer la dirección IP como título del Action Bar
-        val ipAddress = getLocalIpAddress()
-        supportActionBar?.title = "IP: $ipAddress"
-
-        // Abrir conexion con la App control remoto
-        initServerSocket()
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -199,30 +191,15 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowFileAccess = true
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
-
-        // Fondo temporal del webview, esta comentado para usarlo en casos especificos
-        //webView.setBackgroundResource(R.drawable.fondo);
-        //webView.setBackgroundColor(0x00000000);
+        webSettings.useWideViewPort = true
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/marito")
         webView.loadUrl(urlPreference.toString())
 
-        // Aplicar configuraciones de zoom después de que la página termine de cargarse
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-
-                webSettings.useWideViewPort = true
-                webSettings.displayZoomControls = false
-                webSettings.builtInZoomControls = false
-                webSettings.setSupportZoom(false)
-            }
-        }
-
         // Ocultar el ActionBar
-        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()
@@ -337,6 +314,29 @@ class MainActivity : AppCompatActivity() {
                 null
             )
         }
+
+        // Timer para el bucle entre actividades
+        if (timer == null) {
+            timer = Timer()
+            val task = object : TimerTask() {
+                var isStreamingActivityShowing = false
+                override fun run() {
+                    runOnUiThread {
+                        if (isStreamingActivityShowing) {
+                            val intent = Intent(this@MainActivity, Streaming::class.java)
+                            startActivity(intent)
+                            isStreamingActivityShowing = false
+                            timer?.cancel()
+                            timer = null
+                            finish()
+                        } else {
+                            isStreamingActivityShowing = true
+                        }
+                    }
+                }
+            }
+            timer?.schedule(task, 0, 1 * 60 * 1000)
+        }
     }
 
     private fun showPasswordDialog() {
@@ -355,57 +355,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         } else {
             Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun initServerSocket() {
-        Thread {
-            try {
-                serverSocket = ServerSocket(12345)
-                while (true) {
-                    val clientSocket = serverSocket.accept()
-                    val input = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
-                    val receivedUrl = input.readLine()
-
-                    runOnUiThread {
-                        webView.loadUrl(receivedUrl)
-                    }
-
-                    clientSocket.close()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }.start()
-    }
-
-    private fun getLocalIpAddress(): String? {
-        try {
-            val interfaces = NetworkInterface.getNetworkInterfaces()
-            while (interfaces.hasMoreElements()) {
-                val networkInterface = interfaces.nextElement()
-                val addresses = networkInterface.inetAddresses
-                while (addresses.hasMoreElements()) {
-                    val address = addresses.nextElement()
-                    if (!address.isLoopbackAddress && address is Inet4Address) {
-                        return address.hostAddress
-                    }
-                }
-            }
-        } catch (e: SocketException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (::serverSocket.isInitialized) {
-            try {
-                serverSocket.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
         }
     }
 }

@@ -27,6 +27,10 @@
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".MainActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Streaming"
             android:theme="@style/SplashTheme"
             android:exported="true" >
             <intent-filter>
