@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.supranet.webview'
+    namespace 'com.supranet.webviewpictures'
     compileSdk 33
 
     defaultConfig {

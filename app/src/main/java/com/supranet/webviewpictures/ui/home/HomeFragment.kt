@@ -1,4 +1,4 @@
-package com.supranet.webview.ui.home
+package com.supranet.webviewpictures.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.supranet.webview.databinding.FragmentHomeBinding
+import com.supranet.webviewpictures.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 

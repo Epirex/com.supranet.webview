@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.webviewpictures
 
 import android.annotation.SuppressLint
 import android.app.Dialog

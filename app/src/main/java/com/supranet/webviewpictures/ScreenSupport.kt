@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.webviewpictures
 
 import android.os.Bundle
 import android.view.WindowManager

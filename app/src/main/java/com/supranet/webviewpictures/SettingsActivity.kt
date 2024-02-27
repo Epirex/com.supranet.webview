@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.webviewpictures
 
 import android.content.Intent
 import android.net.Uri

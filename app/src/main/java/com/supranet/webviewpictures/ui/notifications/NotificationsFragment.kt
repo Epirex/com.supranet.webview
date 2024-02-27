@@ -1,4 +1,4 @@
-package com.supranet.webview.ui.notifications
+package com.supranet.webviewpictures.ui.notifications
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.supranet.webview.databinding.FragmentNotificationsBinding
+import com.supranet.webviewpictures.databinding.FragmentNotificationsBinding
 
 class NotificationsFragment : Fragment() {
 
