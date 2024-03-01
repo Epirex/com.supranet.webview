@@ -3,8 +3,11 @@ package com.supranet.webview
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.view.View
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import com.airbnb.lottie.LottieAnimationView
 import java.util.*
 
 class Streaming : AppCompatActivity() {
@@ -14,6 +17,16 @@ class Streaming : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_streaming)
+
+        // Lottie time!
+        val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
+        lottieAnimationView.playAnimation()
+
+        // Ponemos un handler hasta que definamos una animacion final
+        Handler().postDelayed({
+            lottieAnimationView.cancelAnimation()
+            lottieAnimationView.visibility = View.GONE
+        }, 5000)
 
         val videoView = findViewById<VideoView>(R.id.videoview)
         val videoUri =

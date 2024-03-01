@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.airbnb.lottie.LottieAnimationView
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -69,6 +70,16 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Lottie time!
+        val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
+        lottieAnimationView.playAnimation()
+
+        // Ponemos un handler hasta que definamos una animacion final
+        Handler().postDelayed({
+            lottieAnimationView.cancelAnimation()
+            lottieAnimationView.visibility = View.GONE
+        }, 5000)
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
