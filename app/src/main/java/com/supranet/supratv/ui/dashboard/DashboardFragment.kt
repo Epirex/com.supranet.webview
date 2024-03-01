@@ -1,4 +1,4 @@
-package com.supranet.webview.ui.dashboard
+package com.supranet.supratv.ui.dashboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.supranet.webview.databinding.FragmentDashboardBinding
+import com.supranet.supratv.databinding.FragmentDashboardBinding
 
 class DashboardFragment : Fragment() {
 

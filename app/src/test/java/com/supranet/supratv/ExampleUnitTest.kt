@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.supratv
 
 import org.junit.Test
 

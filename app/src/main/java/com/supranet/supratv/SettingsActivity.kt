@@ -1,4 +1,4 @@
-package com.supranet.webview
+package com.supranet.supratv
 
 import android.content.Intent
 import android.net.Uri
