@@ -29,6 +29,8 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
+        webView.setBackgroundResource(R.drawable.fondocata);
+        webView.setBackgroundColor(0x00000000);
         val layoutParams = FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
