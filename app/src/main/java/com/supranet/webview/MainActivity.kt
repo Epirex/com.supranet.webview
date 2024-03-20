@@ -13,6 +13,8 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.BufferedReader
@@ -27,12 +29,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
     private lateinit var serverSocket: ServerSocket
+    private var previousUrl: String? = null
+    private val handler = Handler()
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
-            refreshWebView()
+            checkNetworkAndRefreshWebView()
             supportActionBar?.hide()
             true
         }
@@ -50,6 +54,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_home -> {
+                checkNetworkAndRefreshWebView()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
                     sharedPrefs.getString("url_preference", "http://supranet.ar")
@@ -221,6 +226,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        checkNetworkAndRefreshWebView()
+        // Registrar el receptor de difusión para las acciones de cambio de conectividad
+        val filter = IntentFilter()
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(connectivityReceiver, filter)
+
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
         supportActionBar?.apply {
@@ -315,7 +326,7 @@ class MainActivity : AppCompatActivity() {
         if (refreshInterval > 0) {
             handler.postDelayed(object : Runnable {
                 override fun run() {
-                    webView.reload()
+                    checkNetworkAndRefreshWebView()
                     handler.postDelayed(this, refreshInterval * 60 * 1000L)
                 }
             }, refreshInterval * 60 * 1000L)
@@ -402,14 +413,45 @@ class MainActivity : AppCompatActivity() {
     // se recargara la pagina actual, esta funcion sera para casos de emergencia
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
-            webView.reload()
+            checkNetworkAndRefreshWebView()
             return true
         }
         return super.onKeyDown(keyCode, event)
     }
 
+    private fun checkNetworkAndRefreshWebView() {
+        if (isNetworkAvailable()) {
+            previousUrl?.let { webView.loadUrl(it) }
+        } else {
+            previousUrl = webView.url
+            // añadire los elementos mas tarde, aun no lo termine
+            webView.loadUrl("file:///android_asset/error.html")
+        }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
+    }
+
+    private val connectivityReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val isConnected = isNetworkAvailable()
+            if (isConnected) {
+                handler.postDelayed({
+                    checkNetworkAndRefreshWebView()
+                }, 5000) // Retraso de 5 segundos (5000 milisegundos)
+            } else {
+                checkNetworkAndRefreshWebView()
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(connectivityReceiver)
         if (::serverSocket.isInitialized) {
             try {
                 serverSocket.close()
