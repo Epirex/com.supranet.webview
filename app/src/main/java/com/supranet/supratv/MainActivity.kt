@@ -421,8 +421,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showPasswordDialog() {
-        // Mostrar el cuadro flotante
-        passwordDialog.show()
+        if (!isFinishing) {
+            passwordDialog.show()
+        }
     }
 
     private fun checkPassword() {
@@ -481,6 +482,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (passwordDialog.isShowing) {
+            passwordDialog.dismiss()
+        }
         executor?.shutdown()
         executor = null
         unregisterReceiver(connectivityReceiver)
