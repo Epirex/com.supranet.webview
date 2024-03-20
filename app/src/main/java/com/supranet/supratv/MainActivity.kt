@@ -450,10 +450,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkNetworkAndRefreshWebView() {
+        previousUrl = webView.url
         if (isNetworkAvailable()) {
             previousUrl?.let { webView.loadUrl(it) }
         } else {
-            previousUrl = webView.url
             // añadire los elementos mas tarde, aun no lo termine
             webView.loadUrl("file:///android_asset/error.html")
         }
