@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(connectivityReceiver, filter)
 
         // Ocultar el ActionBar
-        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", false)
+        val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
             if (hideToolbarPref) {
                 hide()

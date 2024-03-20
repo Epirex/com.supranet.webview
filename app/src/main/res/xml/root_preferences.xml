@@ -20,7 +20,7 @@
             android:icon="@drawable/android_html" />
 
         <CheckBoxPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:key="hide_toolbar"
             app:summary="Esta opción permite ocultar la barra de herramientas o toolbar en la pantalla principal"
             app:title="Ocultar la barra de herramientas"
