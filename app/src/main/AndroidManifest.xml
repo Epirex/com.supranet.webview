@@ -29,7 +29,8 @@
         <activity
             android:name=".MainActivity"
             android:parentActivityName=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation|screenLayout|fontScale|touchscreen|uiMode" />
         <activity
             android:name=".Streaming"
             android:theme="@style/SplashTheme"
