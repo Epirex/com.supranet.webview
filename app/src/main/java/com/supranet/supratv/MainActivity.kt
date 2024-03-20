@@ -428,6 +428,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Al presionar el boton volver en el control remoto de la TVBOX
+    // se recargara la pagina actual, esta funcion sera para casos de emergencia
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
+            webView.reload()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         executor?.shutdown()
