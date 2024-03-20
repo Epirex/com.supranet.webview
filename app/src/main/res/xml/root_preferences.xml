@@ -45,7 +45,7 @@
             app:summary="Establecer tiempo de refresco de la pagina"
             app:entries="@array/refresh_options"
             app:entryValues="@array/refresh_values"
-            app:defaultValue="0"
+            app:defaultValue="30"
             android:icon="@drawable/android_refresh" />
 
         <Preference

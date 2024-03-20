@@ -319,7 +319,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Configura un temporizador para actualizar
-        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "0")
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")
         val refreshInterval = refreshIntervalPref!!.toInt()
 
         val handler = Handler(Looper.getMainLooper())
