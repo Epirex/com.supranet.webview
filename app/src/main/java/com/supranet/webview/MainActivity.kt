@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://fiambrisima.com.ar/pantalla-3/")
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -208,12 +208,12 @@ class MainActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
 
         // Fondo temporal del webview, esta comentado para usarlo en casos especificos
-        //webView.setBackgroundResource(R.drawable.fiambrisima);
-        //webView.setBackgroundColor(0x00000000);
+        webView.setBackgroundResource(R.drawable.fiambrisima);
+        webView.setBackgroundColor(0x00000000);
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://fiambrisima.com.ar/pantalla-3/")
         if (isNetworkAvailable()) {
             webView.loadUrl(urlPreference.toString())
         } else {
@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
 
         // Configura un temporizador para actualizar
         val handler = Handler(Looper.getMainLooper())
-        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "15")
         val refreshInterval = refreshIntervalPref!!.toInt()
 
         if (refreshInterval > 0) {
