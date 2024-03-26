@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
     private lateinit var serverSocket: ServerSocket
+    private lateinit var connectivityManager: ConnectivityManager
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -77,6 +81,9 @@ class MainActivity : AppCompatActivity() {
 
         // Abrir conexion con la App control remoto
         initServerSocket()
+
+        // Necesitamos esto para hacer el saber si la App tiene internet o no
+        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -201,15 +208,19 @@ class MainActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
 
         // Fondo temporal del webview, esta comentado para usarlo en casos especificos
-        //webView.setBackgroundResource(R.drawable.fondo);
+        //webView.setBackgroundResource(R.drawable.fiambrisima);
         //webView.setBackgroundColor(0x00000000);
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
-        webView.loadUrl(urlPreference.toString())
+        if (isNetworkAvailable()) {
+            webView.loadUrl(urlPreference.toString())
+        } else {
+            loadLocalHtml()
+        }
 
-        // Aplicar configuraciones de zoom después de que la página termine de cargarse
+        // Aplicar configuraciones de zoom y guarda la URL actual después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
@@ -218,6 +229,13 @@ class MainActivity : AppCompatActivity() {
                 webSettings.displayZoomControls = false
                 webSettings.builtInZoomControls = false
                 webSettings.setSupportZoom(false)
+
+                if (url != null && !url.startsWith("file:///android_asset/")) {
+                    // Verificamos que la URL no sea local antes de guardarla
+                    val editor = sharedPreferences.edit()
+                    editor.putString("current_url", url)
+                    editor.apply()
+                }
             }
         }
 
@@ -308,17 +326,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Configura un temporizador para actualizar
+        val handler = Handler(Looper.getMainLooper())
         val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")
         val refreshInterval = refreshIntervalPref!!.toInt()
 
-        val handler = Handler(Looper.getMainLooper())
         if (refreshInterval > 0) {
-            handler.postDelayed(object : Runnable {
+            val refreshTask = object : Runnable {
                 override fun run() {
-                    webView.reload()
+                    if (isNetworkAvailable()) {
+                        val previousUrl = sharedPreferences.getString("current_url", null)
+                        previousUrl?.let { webView.loadUrl(it) }
+                    } else {
+                        loadLocalHtml()
+                    }
                     handler.postDelayed(this, refreshInterval * 60 * 1000L)
                 }
-            }, refreshInterval * 60 * 1000L)
+            }
+            handler.postDelayed(refreshTask, refreshInterval * 60 * 1000L)
         }
 
         // Cargar URL local
@@ -406,6 +430,16 @@ class MainActivity : AppCompatActivity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+    }
+
+    private fun loadLocalHtml() {
+        webView.loadUrl("file:///android_asset/error/index.html")
     }
 
     override fun onDestroy() {
