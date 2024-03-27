@@ -3,6 +3,7 @@ package com.supranet.supratv
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -46,8 +47,10 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
-        webView.setBackgroundResource(R.drawable.fondocata);
-        webView.setBackgroundColor(0x00000000);
+        //webView.setBackgroundResource(R.drawable.fondocata);
+        val color: Int = Color.parseColor("#D50002")
+        webView.setBackgroundColor(color)
+
         val layoutParams = FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
@@ -84,14 +87,14 @@ class Streaming : AppCompatActivity() {
     private fun loadChannels(onChannelsLoaded: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("https://m3u.cl/lista/AR.m3u")
+                val url = URL("http://supranet.ar/webview/negrito.m3u")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val lines = mutableListOf<String>()
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
-                    if (line!!.startsWith("http")) { // Filter out non-URL lines
+                    if (line!!.startsWith("http")) {
                         lines.add(line!!)
                     }
                 }
@@ -170,17 +173,26 @@ class Streaming : AppCompatActivity() {
     }
 
     // Configuracion de la publicidad en streaming
+    private val urls = listOf(
+        "http://supranet.ar/elnegrito/tvbar/",
+        "http://supranet.ar/elnegrito/tvbar2/",
+        "http://supranet.ar/elnegrito/tvbar3/",
+        "http://supranet.ar/elnegrito/tvbar4/"
+    )
+    private var currentUrlIndex = 0
+
     private fun startWebViewLoop() {
         handler.postDelayed({
             if (webViewVisible) {
                 webView.visibility = View.GONE
             } else {
                 webView.visibility = View.VISIBLE
-                webView.loadUrl("https://estebanguzzo.com.ar/publicidadcata/")
+                webView.loadUrl(urls[currentUrlIndex])
+                currentUrlIndex = (currentUrlIndex + 1) % urls.size
             }
             webViewVisible = !webViewVisible
             startWebViewLoop()
-        }, 30 * 1000)
+        }, 35 * 1000)
     }
 
     // Timer para la publicidad completa
