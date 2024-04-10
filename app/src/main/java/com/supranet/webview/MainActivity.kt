@@ -22,6 +22,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -209,8 +210,13 @@ class MainActivity : AppCompatActivity() {
         //webView.setBackgroundResource(R.drawable.fondo);
         //webView.setBackgroundColor(0x00000000);
 
-        // Cargar URL
+        // Obtencion de datos de SharedPreferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        // Verificar si hay turnos activos
+        checkTurns()
+
+        // Cargar URL
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
         webView.loadUrl(urlPreference.toString())
 
@@ -448,6 +454,59 @@ class MainActivity : AppCompatActivity() {
                 checkNetworkAndRefreshWebView()
             }
         }
+    }
+
+    private fun checkTurns(){
+        // Obtener el horario actual del dispositivo
+        val currentTime = Calendar.getInstance()
+        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+
+        // Revisamos si hay algun turno activo
+        val turnoMañanaActivo = sharedPreferences.getBoolean("turno_mañana", false)
+        val turnoMediodiaActivo = sharedPreferences.getBoolean("turno_mediodia", false)
+        val turnoTardeActivo = sharedPreferences.getBoolean("turno_tarde", false)
+        val turnoNocheActivo = sharedPreferences.getBoolean("turno_noche", false)
+
+        // Comparacion con la hora actual y carga de la nueva URL para cada turno
+        when {
+            turnoMañanaActivo && currentHour in 8..11 -> {
+                val turnoMañanaUrl = sharedPreferences.getString("turno_mañana_url", "")
+                if (!turnoMañanaUrl.isNullOrEmpty()) {
+                    webView.loadUrl(turnoMañanaUrl)
+                    return
+                }
+            }
+            turnoMediodiaActivo && currentHour in 12..15 -> {
+                val turnoMediodiaUrl = sharedPreferences.getString("turno_mediodia_url", "")
+                if (!turnoMediodiaUrl.isNullOrEmpty()) {
+                    webView.loadUrl(turnoMediodiaUrl)
+                    return
+                }
+            }
+            turnoTardeActivo && currentHour in 16..19 -> {
+                val turnoTardeUrl = sharedPreferences.getString("turno_tarde_url", "")
+                if (!turnoTardeUrl.isNullOrEmpty()) {
+                    webView.loadUrl(turnoTardeUrl)
+                    return
+                }
+            }
+            turnoNocheActivo && (currentHour >= 20 || currentHour < 8) -> {
+                val turnoNocheUrl = sharedPreferences.getString("turno_noche_url", "")
+                if (!turnoNocheUrl.isNullOrEmpty()) {
+                    webView.loadUrl(turnoNocheUrl)
+                    return
+                }
+            }
+        }
+
+        // si no hay turnos activos, cargar la URL por defecto
+        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        webView.loadUrl(urlPreference.toString())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkTurns()
     }
 
     override fun onDestroy() {

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Configuración de Horarios">
+
+        <CheckBoxPreference
+            android:key="turno_mañana"
+            android:title="Turno Mañana"
+            android:summary="Por defecto de 08:00 a 12:00"
+            android:defaultValue="false"
+            android:icon="@drawable/android_schedule"/>
+
+        <EditTextPreference
+            android:key="turno_mañana_url"
+            android:title="URL para Turno Mañana"
+            android:summary="Ingrese el URL para el turno de mañana"
+            android:dependency="turno_mañana"
+            android:icon="@drawable/android_http"/>
+
+        <Preference
+            android:key="turno_mañana_time"
+            android:title="Configurar Horario para Turno Mañana"
+            android:summary="Personalizar el horario del turno de mañana"
+            android:dependency="turno_mañana"
+            android:icon="@drawable/android_time"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory>
+
+        <CheckBoxPreference
+            android:key="turno_mediodia"
+            android:title="Turno Mediodía"
+            android:summary="Por defecto de 12:00 a 16:00"
+            android:defaultValue="false"
+            android:icon="@drawable/android_schedule"/>
+
+        <EditTextPreference
+            android:key="turno_mediodia_url"
+            android:title="URL para Turno Mediodía"
+            android:summary="Ingrese el URL para el turno de mediodía"
+            android:dependency="turno_mediodia"
+            android:icon="@drawable/android_http"/>
+
+        <Preference
+            android:key="turno_mediodia_time"
+            android:title="Configurar Horario para Turno Mediodía"
+            android:summary="Personalizar el horario del turno de mediodía"
+            android:dependency="turno_mediodia"
+            android:icon="@drawable/android_time"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory>
+
+        <CheckBoxPreference
+            android:key="turno_tarde"
+            android:title="Turno Tarde"
+            android:summary="Por defecto de 16:00 a 20:00"
+            android:defaultValue="false"
+            android:icon="@drawable/android_schedule"/>
+
+        <EditTextPreference
+            android:key="turno_tarde_url"
+            android:title="URL para Turno Tarde"
+            android:summary="Ingrese el URL para el turno de tarde"
+            android:dependency="turno_tarde"
+            android:icon="@drawable/android_http"/>
+
+        <Preference
+            android:key="turno_tarde_time"
+            android:title="Configurar Horario para Turno Tarde"
+            android:summary="Personalizar el horario del turno de tarde"
+            android:dependency="turno_tarde"
+            android:icon="@drawable/android_time"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory>
+
+        <CheckBoxPreference
+            android:key="turno_noche"
+            android:title="Turno Noche"
+            android:summary="Por defecto de 20:00 a 08:00"
+            android:defaultValue="false"
+            android:icon="@drawable/android_schedule"/>
+
+        <EditTextPreference
+            android:key="turno_noche_url"
+            android:title="URL para Turno Noche"
+            android:summary="Ingrese el URL para el turno de noche"
+            android:dependency="turno_noche"
+            android:icon="@drawable/android_http"/>
+
+        <Preference
+            android:key="turno_noche_time"
+            android:title="Configurar Horario para Turno Noche"
+            android:summary="Personalizar el horario del turno de noche"
+            android:dependency="turno_noche"
+            android:icon="@drawable/android_time"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>
