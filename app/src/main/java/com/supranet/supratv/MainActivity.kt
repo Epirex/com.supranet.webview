@@ -26,6 +26,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -37,12 +38,17 @@ class MainActivity : AppCompatActivity() {
     private var executor: ScheduledExecutorService? = null
     private var previousUrl: String? = null
     private val handler = Handler()
+    private var scheduledExecutorService: ScheduledExecutorService? = null
+    private var scheduledFuture: ScheduledFuture<*>? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
             checkNetworkAndRefreshWebView()
+            checkTurns()
+            stopRefreshTimer()
+            startRefreshTimer()
             true
         }
         return true
@@ -60,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_home -> {
                 checkNetworkAndRefreshWebView()
+                checkTurns()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
                     sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
@@ -256,8 +263,14 @@ class MainActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
         webSettings.useWideViewPort = true
 
-        // Cargar URL
+        // Obtencion de datos de SharedPreferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        // Verificar si hay turnos activos
+        checkTurns()
+        startRefreshTimer()
+
+        // Cargar URL
         val urlPreference =
             sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
         webView.loadUrl(urlPreference.toString())
@@ -354,20 +367,6 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         }
 
-        // Configura un temporizador para actualizar
-        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")
-        val refreshInterval = refreshIntervalPref!!.toInt()
-
-        val handler = Handler(Looper.getMainLooper())
-        if (refreshInterval > 0) {
-            handler.postDelayed(object : Runnable {
-                override fun run() {
-                    checkNetworkAndRefreshWebView()
-                    handler.postDelayed(this, refreshInterval * 60 * 1000L)
-                }
-            }, refreshInterval * 60 * 1000L)
-        }
-
         // Cargar URL local
         val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
         if (loadLocalHtml) {
@@ -420,6 +419,24 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun startRefreshTimer() {
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")?.toLong() ?: 30L
+        if (refreshIntervalPref > 0) {
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+            scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
+                runOnUiThread {
+                    checkNetworkAndRefreshWebView()
+                    checkTurns()
+                }
+            }, refreshIntervalPref, refreshIntervalPref, TimeUnit.MINUTES)
+        }
+    }
+
+    private fun stopRefreshTimer() {
+        scheduledFuture?.cancel(true)
+        scheduledExecutorService?.shutdownNow()
+    }
+
     private fun showPasswordDialog() {
         if (!isFinishing) {
             passwordDialog.show()
@@ -445,6 +462,7 @@ class MainActivity : AppCompatActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
             checkNetworkAndRefreshWebView()
+            checkTurns()
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -473,6 +491,7 @@ class MainActivity : AppCompatActivity() {
             if (isConnected) {
                 handler.postDelayed({
                     checkNetworkAndRefreshWebView()
+                    checkTurns()
                 }, 5000)
             } else {
                 checkNetworkAndRefreshWebView()
@@ -480,8 +499,82 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkTurns(){
+        val currentTime = Calendar.getInstance()
+        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = currentTime.get(Calendar.MINUTE)
+
+        // Revisamos si hay algun turno activo
+        val turnoMañanaActivo = sharedPreferences.getBoolean("turno_mañana", false)
+        val turnoMediodiaActivo = sharedPreferences.getBoolean("turno_mediodia", false)
+        val turnoTardeActivo = sharedPreferences.getBoolean("turno_tarde", false)
+        val turnoNocheActivo = sharedPreferences.getBoolean("turno_noche", false)
+
+        // Función auxiliar para determinar si la hora actual está dentro del rango especificado
+        fun estaEnRango(horaInicio: Int, minutoInicio: Int, horaFin: Int, minutoFin: Int): Boolean {
+            val inicio = horaInicio * 60 + minutoInicio
+            val fin = horaFin * 60 + minutoFin
+            val actual = currentHour * 60 + currentMinute
+            return actual in inicio..fin
+        }
+
+        // Verificar y cargar URL para cada turno si está activo y en su horario
+        if (turnoMañanaActivo) {
+            val horario = sharedPreferences.getString("turno_mañana_time", "08:00 - 12:00")!!.split(" - ")
+            val inicio = horario[0].split(":").map { it.toInt() }
+            val fin = horario[1].split(":").map { it.toInt() }
+            if (estaEnRango(inicio[0], inicio[1], fin[0], fin[1])) {
+                sharedPreferences.getString("turno_mañana_url", "")?.let { webView.loadUrl(it) }
+                return
+            }
+        }
+
+        if (turnoMediodiaActivo) {
+            val horario = sharedPreferences.getString("turno_mediodia_time", "12:00 - 16:00")!!.split(" - ")
+            val inicio = horario[0].split(":").map { it.toInt() }
+            val fin = horario[1].split(":").map { it.toInt() }
+            if (estaEnRango(inicio[0], inicio[1], fin[0], fin[1])) {
+                sharedPreferences.getString("turno_mediodia_url", "")?.let { webView.loadUrl(it) }
+                return
+            }
+        }
+
+        if (turnoTardeActivo) {
+            val horario = sharedPreferences.getString("turno_tarde_time", "16:00 - 20:00")!!.split(" - ")
+            val inicio = horario[0].split(":").map { it.toInt() }
+            val fin = horario[1].split(":").map { it.toInt() }
+            if (estaEnRango(inicio[0], inicio[1], fin[0], fin[1])) {
+                sharedPreferences.getString("turno_tarde_url", "")?.let { webView.loadUrl(it) }
+                return
+            }
+        }
+
+        if (turnoNocheActivo) {
+            val horario = sharedPreferences.getString("turno_noche_time", "20:00 - 08:00")!!.split(" - ")
+            val inicio = horario[0].split(":").map { it.toInt() }
+            val fin = horario[1].split(":").map { it.toInt() }
+            // Para el turno de noche, que cruza la medianoche, se maneja un caso especial
+            if (currentHour >= inicio[0] || currentHour < fin[0] || (currentHour == fin[0] && currentMinute < fin[1])) {
+                sharedPreferences.getString("turno_noche_url", "")?.let { webView.loadUrl(it) }
+                return
+            }
+        }
+
+        // si no hay turnos activos, cargar la URL por defecto
+        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
+        webView.loadUrl(urlPreference.toString())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkTurns()
+        stopRefreshTimer()
+        startRefreshTimer()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        stopRefreshTimer()
         if (passwordDialog.isShowing) {
             passwordDialog.dismiss()
         }
