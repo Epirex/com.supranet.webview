@@ -166,17 +166,35 @@ private fun showDualTimePickerDialog(context: Context, key: String) {
     val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_dual_time_picker, null)
     val timePicker1 = dialogView.findViewById<TimePicker>(R.id.timePicker1)
     val timePicker2 = dialogView.findViewById<TimePicker>(R.id.timePicker2)
+    val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+    val savedTime = sharedPrefs.getString(key, null)
+    val (hour1, minute1, hour2, minute2) = if (savedTime != null) {
+        savedTime.split(":"," - ",":").map { it.toInt() }
+    } else {
+        when (key) {
+            "turno_mañana_time" -> listOf(8, 0, 12, 0)
+            "turno_mediodia_time" -> listOf(12, 0, 16, 0)
+            "turno_tarde_time" -> listOf(16, 0, 20, 0)
+            "turno_noche_time" -> listOf(20, 0, 8, 0)
+            else -> listOf(0, 0, 0, 0)
+        }
+    }
+
+    timePicker1.hour = hour1
+    timePicker1.minute = minute1
+    timePicker2.hour = hour2
+    timePicker2.minute = minute2
 
     val builder = AlertDialog.Builder(context)
         .setTitle("Configurar Horarios")
         .setView(dialogView)
         .setPositiveButton("Guardar") { dialog, _ ->
-            val hour1 = timePicker1.hour
-            val minute1 = timePicker1.minute
-            val hour2 = timePicker2.hour
-            val minute2 = timePicker2.minute
+            val newHour1 = timePicker1.hour
+            val newMinute1 = timePicker1.minute
+            val newHour2 = timePicker2.hour
+            val newMinute2 = timePicker2.minute
 
-            val formattedTime = String.format("%02d:%02d - %02d:%02d", hour1, minute1, hour2, minute2)
+            val formattedTime = String.format("%02d:%02d - %02d:%02d", newHour1, newMinute1, newHour2, newMinute2)
             saveStringToSharedPreferences(context, key, formattedTime)
 
             dialog.dismiss()
