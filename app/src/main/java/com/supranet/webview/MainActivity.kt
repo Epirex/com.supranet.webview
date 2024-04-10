@@ -23,6 +23,10 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.*
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var serverSocket: ServerSocket
     private var previousUrl: String? = null
     private val handler = Handler()
+    private var scheduledExecutorService: ScheduledExecutorService? = null
+    private var scheduledFuture: ScheduledFuture<*>? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -39,6 +45,8 @@ class MainActivity : AppCompatActivity() {
         refreshItem?.setOnMenuItemClickListener {
             checkNetworkAndRefreshWebView()
             checkTurns()
+            stopRefreshTimer()
+            startRefreshTimer()
             supportActionBar?.hide()
             true
         }
@@ -217,6 +225,7 @@ class MainActivity : AppCompatActivity() {
 
         // Verificar si hay turnos activos
         checkTurns()
+        startRefreshTimer()
 
         // Cargar URL
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
@@ -326,21 +335,6 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         }
 
-        // Configura un temporizador para actualizar
-        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")
-        val refreshInterval = refreshIntervalPref!!.toInt()
-
-        val handler = Handler(Looper.getMainLooper())
-        if (refreshInterval > 0) {
-            handler.postDelayed(object : Runnable {
-                override fun run() {
-                    checkNetworkAndRefreshWebView()
-                    checkTurns()
-                    handler.postDelayed(this, refreshInterval * 60 * 1000L)
-                }
-            }, refreshInterval * 60 * 1000L)
-        }
-
         // Cargar URL local
         val loadLocalHtml = sharedPreferences.getBoolean("enable_local", false)
         if (loadLocalHtml) {
@@ -357,6 +351,24 @@ class MainActivity : AppCompatActivity() {
                 null
             )
         }
+    }
+
+    private fun startRefreshTimer() {
+        val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")?.toLong() ?: 30L
+        if (refreshIntervalPref > 0) {
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+            scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
+                runOnUiThread {
+                    checkNetworkAndRefreshWebView()
+                    checkTurns()
+                }
+            }, refreshIntervalPref, refreshIntervalPref, TimeUnit.MINUTES)
+        }
+    }
+
+    private fun stopRefreshTimer() {
+        scheduledFuture?.cancel(true)
+        scheduledExecutorService?.shutdownNow()
     }
 
     private fun showPasswordDialog() {
@@ -535,6 +547,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stopRefreshTimer()
         if (passwordDialog.isShowing) {
             passwordDialog.dismiss()
         }
