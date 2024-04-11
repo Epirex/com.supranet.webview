@@ -543,6 +543,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkTurns()
+        stopRefreshTimer()
+        startRefreshTimer()
     }
 
     override fun onDestroy() {
