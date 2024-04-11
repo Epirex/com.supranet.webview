@@ -12,6 +12,12 @@
             app:title="Carga un URL desde Internet"
             android:icon="@drawable/android_http" />
 
+        <Preference
+            app:key="schedule_settings"
+            app:title="Horarios"
+            app:summary="Configure diferentes horarios para mostrar contenido en pantalla"
+            android:icon="@drawable/android_time"/>
+
         <CheckBoxPreference
             app:defaultValue="false"
             app:key="enable_local"
