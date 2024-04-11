@@ -469,7 +469,6 @@ class MainActivity : AppCompatActivity() {
                 }, 5000) // Retraso de 5 segundos (5000 milisegundos)
             } else {
                 checkNetworkAndRefreshWebView()
-                checkTurns()
             }
         }
     }
