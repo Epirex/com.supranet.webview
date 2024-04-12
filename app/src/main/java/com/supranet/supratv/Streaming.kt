@@ -78,10 +78,6 @@ class Streaming : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences.edit().putInt("currentChannelIndex", currentChannelIndex).apply()
-    }
 
     // Lectura del listado m3u
     private fun loadChannels(onChannelsLoaded: () -> Unit) {
@@ -222,6 +218,20 @@ class Streaming : AppCompatActivity() {
             }
             timer?.schedule(task, 60 * 1000)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!::videoView.isInitialized) {
+            videoView = findViewById(R.id.videoview)
+        }
+        videoView.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        videoView.pause()
+        sharedPreferences.edit().putInt("currentChannelIndex", currentChannelIndex).apply()
     }
 
     override fun onDestroy() {
