@@ -114,7 +114,18 @@ class Streaming : AppCompatActivity() {
             videoView = findViewById(R.id.videoview)
             val videoUri = Uri.parse(channels[currentChannelIndex])
             videoView.setVideoURI(videoUri)
+            videoView.setOnErrorListener { _, _, _ ->
+                showToastChannel("El canal anterior no estaba disponible", Toast.LENGTH_LONG)
+                switchToNextChannel()
+                true
+            }
             videoView.start()
+        }
+    }
+
+    private fun showToastChannel(message: String, duration: Int) {
+        runOnUiThread {
+            Toast.makeText(this@Streaming, message, duration).show()
         }
     }
 
