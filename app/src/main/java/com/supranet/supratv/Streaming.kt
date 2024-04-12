@@ -129,21 +129,22 @@ class Streaming : AppCompatActivity() {
                 switchToPreviousChannel()
                 return true
             }
-            KeyEvent.KEYCODE_DPAD_CENTER -> {
-                if (event.action == KeyEvent.ACTION_DOWN) {
-                    if (timer != null) {
-                        timer?.cancel()
-                        timer = null
-                        showToast("Publicidad completa desactivada")
-                        sharedPreferences.edit().putBoolean("timerActive", false).apply()
-                    } else {
-                        startTimer()
-                        showToast("Publicidad completa activada")
-                        sharedPreferences.edit().putBoolean("timerActive", true).apply()
-                    }
-                    return true
-                }
-            }
+            // Desactivado por ahora, no lo necesitamos
+            //KeyEvent.KEYCODE_DPAD_CENTER -> {
+            //    if (event.action == KeyEvent.ACTION_DOWN) {
+            //        if (timer != null) {
+            //            timer?.cancel()
+            //            timer = null
+            //            showToast("Publicidad completa desactivada")
+            //            sharedPreferences.edit().putBoolean("timerActive", false).apply()
+            //        } else {
+            //            startTimer()
+            //            showToast("Publicidad completa activada")
+            //            sharedPreferences.edit().putBoolean("timerActive", true).apply()
+            //        }
+            //        return true
+            //    }
+            //}
         }
         return super.dispatchKeyEvent(event)
     }
@@ -166,11 +167,11 @@ class Streaming : AppCompatActivity() {
         videoView.start()
     }
 
-    private fun showToast(message: String) {
-        runOnUiThread {
-            Toast.makeText(this@Streaming, message, Toast.LENGTH_SHORT).show()
-        }
-    }
+    //private fun showToast(message: String) {
+    //    runOnUiThread {
+    //        Toast.makeText(this@Streaming, message, Toast.LENGTH_SHORT).show()
+    //    }
+    //}
 
     // Configuracion de la publicidad en streaming
     private val urls = listOf(
