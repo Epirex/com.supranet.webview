@@ -17,6 +17,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.google.firebase.database.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler()
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
+    private lateinit var databaseReference: DatabaseReference
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -230,6 +232,21 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
         webView.loadUrl(urlPreference.toString())
+
+        // Inicializar Firebase Realtime Database
+        databaseReference = FirebaseDatabase.getInstance().getReference("urls")
+        databaseReference.child("currentUrl").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val url = snapshot.getValue(String::class.java)
+                url?.let {
+                    webView.loadUrl(it)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(applicationContext, "Error al leer la URL de Firebase", Toast.LENGTH_SHORT).show()
+            }
+        })
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
