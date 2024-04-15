@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "611669757403",
+    "project_id": "suprakiosk",
+    "storage_bucket": "suprakiosk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611669757403:android:e60d85bfd2f1bada4febfe",
+        "android_client_info": {
+          "package_name": "com.supranet.webview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgJNfULkXZpScgS0gPxjinqVk8BQAbTBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
