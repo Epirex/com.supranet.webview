@@ -70,13 +70,26 @@ class MainActivity : AppCompatActivity() {
         when (event.keyCode) {
             KeyEvent.KEYCODE_3 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    val intent = Intent(this, Streaming::class.java)
-                    startActivity(intent)
+                    showToast("Publicidad completa desactivada")
+                    finish()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_4 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    showToast("Presione nuevamente el boton Nº4 para desactivar todas las publicidades")
+                    finish()
                     return true
                 }
             }
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    private fun showToast(message: String) {
+        runOnUiThread {
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -370,5 +383,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "¡Contraseña incorrecta!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        timer?.cancel()
+        timer = null
     }
 }

@@ -140,7 +140,7 @@ class Streaming : AppCompatActivity() {
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     isWebViewEnabled = !isWebViewEnabled
-                    showToast("Publicidad minima${if (isWebViewEnabled) "activada" else "desactivada"}")
+                    showToast("Publicidad minima ${if (isWebViewEnabled) "activada" else "desactivada"}")
                     if (!isWebViewEnabled && webViewVisible) {
                         webView.visibility = View.GONE
                         webViewVisible = false
@@ -168,6 +168,13 @@ class Streaming : AppCompatActivity() {
                     showToast("Publicidad completa activada")
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_4 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    showToast("Todos los modos de publicidad han sido desactivados")
+                    disableAllAdvertising()
                     return true
                 }
             }
@@ -255,6 +262,13 @@ class Streaming : AppCompatActivity() {
             }
             timer?.schedule(task, 60 * 1000)
         }
+    }
+
+    private fun disableAllAdvertising() {
+        timer?.cancel()
+        timer = null
+        webView.visibility = View.GONE
+        webViewVisible = false
     }
 
     override fun onResume() {
