@@ -31,6 +31,7 @@ class Streaming : AppCompatActivity() {
     private lateinit var webView: android.webkit.WebView
     private val handler = Handler()
     private var webViewVisible = false
+    private var isWebViewEnabled = true
     private var currentChannelIndex = 0
     private var channels: List<String> = emptyList()
     private var urls: MutableList<String> = mutableListOf()
@@ -137,6 +138,17 @@ class Streaming : AppCompatActivity() {
                 switchToPreviousChannel()
                 return true
             }
+            KeyEvent.KEYCODE_1 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    isWebViewEnabled = !isWebViewEnabled
+                    showToast("Publicidad ${if (isWebViewEnabled) "activado" else "desactivado"}")
+                    if (!isWebViewEnabled && webViewVisible) {
+                        webView.visibility = View.GONE
+                        webViewVisible = false
+                    }
+                    return true
+                }
+            }
             // Desactivado por ahora, no lo necesitamos
             //KeyEvent.KEYCODE_DPAD_CENTER -> {
             //    if (event.action == KeyEvent.ACTION_DOWN) {
@@ -175,11 +187,11 @@ class Streaming : AppCompatActivity() {
         videoView.start()
     }
 
-    //private fun showToast(message: String) {
-    //    runOnUiThread {
-    //        Toast.makeText(this@Streaming, message, Toast.LENGTH_SHORT).show()
-    //    }
-    //}
+    private fun showToast(message: String) {
+        runOnUiThread {
+            Toast.makeText(this@Streaming, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Configuracion de la publicidad en streaming
     private var currentUrlIndex = 0
@@ -201,17 +213,19 @@ class Streaming : AppCompatActivity() {
 
                 runOnUiThread {
                     handler.postDelayed({
-                        if (webViewVisible) {
-                            webView.visibility = View.GONE
-                        } else {
-                            webView.visibility = View.VISIBLE
-                            if (currentUrlIndex < urls.size) {
-                                webView.loadUrl(urls[currentUrlIndex])
-                                currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                        if (isWebViewEnabled) {
+                            if (webViewVisible) {
+                                webView.visibility = View.GONE
+                            } else {
+                                webView.visibility = View.VISIBLE
+                                if (currentUrlIndex < urls.size) {
+                                    webView.loadUrl(urls[currentUrlIndex])
+                                    currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                                }
                             }
+                            webViewVisible = !webViewVisible
                         }
-                        webViewVisible = !webViewVisible
-                        startWebViewLoop()
+                            startWebViewLoop()
                     }, 35 * 1000)
                 }
             } catch (e: Exception) {
