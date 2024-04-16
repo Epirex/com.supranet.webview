@@ -49,7 +49,6 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
-        //webView.setBackgroundResource(R.drawable.fondocata);
         val color: Int = Color.parseColor("#D50002")
         webView.setBackgroundColor(color)
 
@@ -71,12 +70,12 @@ class Streaming : AppCompatActivity() {
             startVideo()
         }
 
-        // Loop de publicidad en streaming
-        startWebViewLoop()
+        // Activa la publicidad minima por defecto
+        minimalAdvertising()
 
-        // Chequeo del timer para la publicidad completa
+        // Chequeo del timer para la publicidad parcial
         if (timerActive) {
-            startTimer()
+            partialAdvertising()
         }
     }
 
@@ -141,7 +140,7 @@ class Streaming : AppCompatActivity() {
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     isWebViewEnabled = !isWebViewEnabled
-                    showToast("Publicidad ${if (isWebViewEnabled) "activado" else "desactivado"}")
+                    showToast("Publicidad minima${if (isWebViewEnabled) "activada" else "desactivada"}")
                     if (!isWebViewEnabled && webViewVisible) {
                         webView.visibility = View.GONE
                         webViewVisible = false
@@ -157,7 +156,7 @@ class Streaming : AppCompatActivity() {
                         showToast("Publicidad parcial desactivada")
                         sharedPreferences.edit().putBoolean("timerActive", false).apply()
                     } else {
-                        startTimer()
+                        partialAdvertising()
                         showToast("Publicidad parcial activada")
                         sharedPreferences.edit().putBoolean("timerActive", true).apply()
                     }
@@ -203,7 +202,7 @@ class Streaming : AppCompatActivity() {
     // Configuracion de la publicidad en streaming
     private var currentUrlIndex = 0
 
-    private fun startWebViewLoop() {
+    private fun minimalAdvertising() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
@@ -232,7 +231,7 @@ class Streaming : AppCompatActivity() {
                             }
                             webViewVisible = !webViewVisible
                         }
-                            startWebViewLoop()
+                        minimalAdvertising()
                     }, 35 * 1000)
                 }
             } catch (e: Exception) {
@@ -242,7 +241,7 @@ class Streaming : AppCompatActivity() {
     }
 
     // Timer para la publicidad parcial
-    private fun startTimer() {
+    private fun partialAdvertising() {
         if (timer == null) {
             timer = Timer()
             val task = object : TimerTask() {
