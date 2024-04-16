@@ -66,20 +66,23 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_3 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val intent = Intent(this, Streaming::class.java)
+                    startActivity(intent)
+                    return true
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Lottie time!
-        val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
-        lottieAnimationView.playAnimation()
-
-        // Ponemos un handler hasta que definamos una animacion final
-        Handler().postDelayed({
-            lottieAnimationView.cancelAnimation()
-            lottieAnimationView.visibility = View.GONE
-        }, 5000)
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)

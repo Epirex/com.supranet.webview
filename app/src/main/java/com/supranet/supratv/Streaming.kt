@@ -164,6 +164,14 @@ class Streaming : AppCompatActivity() {
                     return true
                 }
             }
+            KeyEvent.KEYCODE_3 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    showToast("Publicidad completa activada")
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    return true
+                }
+            }
         }
         return super.dispatchKeyEvent(event)
     }
