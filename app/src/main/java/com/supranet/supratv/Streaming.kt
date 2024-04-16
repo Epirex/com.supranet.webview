@@ -33,6 +33,7 @@ class Streaming : AppCompatActivity() {
     private var webViewVisible = false
     private var currentChannelIndex = 0
     private var channels: List<String> = emptyList()
+    private var urls: MutableList<String> = mutableListOf()
     private var timer: Timer? = null
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -83,7 +84,7 @@ class Streaming : AppCompatActivity() {
     private fun loadChannels(onChannelsLoaded: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("http://supranet.ar/webview/negrito.m3u")
+                val url = URL("http://supranet.ar/webview/elnegrito/negrito.m3u")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
@@ -181,26 +182,42 @@ class Streaming : AppCompatActivity() {
     //}
 
     // Configuracion de la publicidad en streaming
-    private val urls = listOf(
-        "http://supranet.ar/elnegrito/tvbar/",
-        "http://supranet.ar/elnegrito/tvbar2/",
-        "http://supranet.ar/elnegrito/tvbar3/",
-        "http://supranet.ar/elnegrito/tvbar4/"
-    )
     private var currentUrlIndex = 0
 
     private fun startWebViewLoop() {
-        handler.postDelayed({
-            if (webViewVisible) {
-                webView.visibility = View.GONE
-            } else {
-                webView.visibility = View.VISIBLE
-                webView.loadUrl(urls[currentUrlIndex])
-                currentUrlIndex = (currentUrlIndex + 1) % urls.size
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
+                val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val lines = mutableListOf<String>()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    lines.add(line!!)
+                }
+                urls = lines
+                connection.disconnect()
+
+                runOnUiThread {
+                    handler.postDelayed({
+                        if (webViewVisible) {
+                            webView.visibility = View.GONE
+                        } else {
+                            webView.visibility = View.VISIBLE
+                            if (currentUrlIndex < urls.size) {
+                                webView.loadUrl(urls[currentUrlIndex])
+                                currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                            }
+                        }
+                        webViewVisible = !webViewVisible
+                        startWebViewLoop()
+                    }, 35 * 1000)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            webViewVisible = !webViewVisible
-            startWebViewLoop()
-        }, 35 * 1000)
+        }
     }
 
     // Timer para la publicidad completa
