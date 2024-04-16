@@ -149,22 +149,21 @@ class Streaming : AppCompatActivity() {
                     return true
                 }
             }
-            // Desactivado por ahora, no lo necesitamos
-            //KeyEvent.KEYCODE_DPAD_CENTER -> {
-            //    if (event.action == KeyEvent.ACTION_DOWN) {
-            //        if (timer != null) {
-            //            timer?.cancel()
-            //            timer = null
-            //            showToast("Publicidad completa desactivada")
-            //            sharedPreferences.edit().putBoolean("timerActive", false).apply()
-            //        } else {
-            //            startTimer()
-            //            showToast("Publicidad completa activada")
-            //            sharedPreferences.edit().putBoolean("timerActive", true).apply()
-            //        }
-            //        return true
-            //    }
-            //}
+            KeyEvent.KEYCODE_2 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    if (timer != null) {
+                        timer?.cancel()
+                        timer = null
+                        showToast("Publicidad parcial desactivada")
+                        sharedPreferences.edit().putBoolean("timerActive", false).apply()
+                    } else {
+                        startTimer()
+                        showToast("Publicidad parcial activada")
+                        sharedPreferences.edit().putBoolean("timerActive", true).apply()
+                    }
+                    return true
+                }
+            }
         }
         return super.dispatchKeyEvent(event)
     }
@@ -234,7 +233,7 @@ class Streaming : AppCompatActivity() {
         }
     }
 
-    // Timer para la publicidad completa
+    // Timer para la publicidad parcial
     private fun startTimer() {
         if (timer == null) {
             timer = Timer()
