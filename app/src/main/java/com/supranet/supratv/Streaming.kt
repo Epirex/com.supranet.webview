@@ -139,17 +139,6 @@ class Streaming : AppCompatActivity() {
             }
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    isWebViewEnabled = !isWebViewEnabled
-                    showToast("Publicidad minima ${if (isWebViewEnabled) "activada" else "desactivada"}")
-                    if (!isWebViewEnabled && webViewVisible) {
-                        webView.visibility = View.GONE
-                        webViewVisible = false
-                    }
-                    return true
-                }
-            }
-            KeyEvent.KEYCODE_2 -> {
-                if (event.action == KeyEvent.ACTION_DOWN) {
                     if (timer != null) {
                         timer?.cancel()
                         timer = null
@@ -163,18 +152,19 @@ class Streaming : AppCompatActivity() {
                     return true
                 }
             }
-            KeyEvent.KEYCODE_3 -> {
+            KeyEvent.KEYCODE_2 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     showToast("Publicidad completa activada")
+                    disableTimer()
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     return true
                 }
             }
-            KeyEvent.KEYCODE_4 -> {
+            KeyEvent.KEYCODE_3 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     showToast("Todos los modos de publicidad han sido desactivados")
-                    disableAllAdvertising()
+                    disableTimer()
                     return true
                 }
             }
@@ -264,11 +254,10 @@ class Streaming : AppCompatActivity() {
         }
     }
 
-    private fun disableAllAdvertising() {
+    private fun disableTimer() {
         timer?.cancel()
         timer = null
-        webView.visibility = View.GONE
-        webViewVisible = false
+        sharedPreferences.edit().putBoolean("timerActive", false).apply()
     }
 
     override fun onResume() {

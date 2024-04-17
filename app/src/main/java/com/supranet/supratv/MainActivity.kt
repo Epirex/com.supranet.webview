@@ -68,16 +68,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         when (event.keyCode) {
-            KeyEvent.KEYCODE_3 -> {
+            KeyEvent.KEYCODE_2 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     showToast("Publicidad completa desactivada")
                     finish()
                     return true
                 }
             }
-            KeyEvent.KEYCODE_4 -> {
+            KeyEvent.KEYCODE_3 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    showToast("Presione nuevamente el boton Nº4 para desactivar todas las publicidades")
+                    showToast("Presione nuevamente el boton Nº3 para desactivar todas las publicidades")
                     finish()
                     return true
                 }
@@ -96,6 +96,15 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        sharedPreferences = getSharedPreferences("StreamingPreferences", Context.MODE_PRIVATE)
+        val timerActive = sharedPreferences.getBoolean("timerActive", false)
+
+        if (timerActive) {
+            activateTimer()
+        } else {
+            disableTimer()
+        }
 
         // Obtener el ANDROID_ID del dispositivo
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -134,7 +143,8 @@ class MainActivity : AppCompatActivity() {
                     // Si el ID no se encuentra en la respuesta, mostrar un mensaje de error
                     val intent = Intent(applicationContext, ScreenSupport::class.java)
                     startActivity(intent)
-                    Toast.makeText(this@MainActivity, "Error en la licencia", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Error en la licencia", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -222,7 +232,8 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/marito")
+        val urlPreference =
+            sharedPreferences.getString("url_preference", "http://supranet.ar/marito")
         webView.loadUrl(urlPreference.toString())
 
         // Ocultar el ActionBar
@@ -341,8 +352,9 @@ class MainActivity : AppCompatActivity() {
                 null
             )
         }
+    }
 
-        // Timer para el bucle entre actividades
+    private fun activateTimer() {
         if (timer == null) {
             timer = Timer()
             val task = object : TimerTask() {
@@ -364,6 +376,11 @@ class MainActivity : AppCompatActivity() {
             }
             timer?.schedule(task, 0, 1 * 60 * 1000)
         }
+    }
+
+    private fun disableTimer(){
+        timer?.cancel()
+        timer = null
     }
 
     private fun showPasswordDialog() {
