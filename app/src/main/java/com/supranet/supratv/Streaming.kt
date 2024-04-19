@@ -1,9 +1,8 @@
 package com.supranet.supratv
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.graphics.Color
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
@@ -39,6 +38,7 @@ class Streaming : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
+    private var connectivityReceiver: ConnectivityReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +79,15 @@ class Streaming : AppCompatActivity() {
         if (timerActive) {
             mixedAdvertising()
         }
+
+        // Receptor de conectividad
+        connectivityReceiver = ConnectivityReceiver()
+        val filter = IntentFilter()
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(connectivityReceiver, filter)
+
+        // Verificar la conexión a Internet
+        checkInternetConnection()
 
         // Verificacion del ciclo de vida de la app
         val disableAdvertisingIntent = intent.getBooleanExtra("disableAdvertisingIntent", false)
@@ -305,6 +314,23 @@ class Streaming : AppCompatActivity() {
         stopMixedAdvertising()
     }
 
+    private fun checkInternetConnection() {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        val isConnected = networkInfo != null && networkInfo.isConnectedOrConnecting
+        if (!isConnected) {
+            Alerter.create(this)
+                .setTitle("No hay conexión a Internet. Reintentando...")
+                .enableInfiniteDuration(true)
+                .setIcon(R.drawable.supranet)
+                .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+                .setIconSize(R.dimen.custom_icon_size)
+                .setBackgroundColorRes(R.color.md_theme_light_outline)
+                .show()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (!::videoView.isInitialized) {
@@ -324,5 +350,26 @@ class Streaming : AppCompatActivity() {
         super.onDestroy()
         stopMixedAdvertising()
         stopBaseAdvertising()
+        connectivityReceiver?.let {
+            unregisterReceiver(it)
+        }
+    }
+
+    // Clase para obtener cambios en la conectividad
+    inner class ConnectivityReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == ConnectivityManager.CONNECTIVITY_ACTION) {
+                val connectivityManager =
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val networkInfo = connectivityManager.activeNetworkInfo
+                val isConnected = networkInfo != null && networkInfo.isConnectedOrConnecting
+                if (isConnected) {
+                    Alerter.hide()
+                    startVideo()
+                } else {
+                    checkInternetConnection()
+                }
+            }
+        }
     }
 }
