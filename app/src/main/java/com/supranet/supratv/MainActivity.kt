@@ -15,20 +15,24 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import com.airbnb.lottie.LottieAnimationView
+import com.tapadoo.alerter.Alerter
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
-    private var timer: Timer? = null
+    private var isStreamingActivityShowing = false
+    private var executor: ScheduledExecutorService? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -53,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar/marito")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -62,34 +66,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
+        Toast.makeText(applicationContext, "Pulse el botón número 4 para desactivar la publicidad completa.", Toast.LENGTH_SHORT)
             .show()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         when (event.keyCode) {
-            KeyEvent.KEYCODE_2 -> {
+            KeyEvent.KEYCODE_4 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    showToast("Publicidad completa desactivada")
-                    finish()
-                    return true
-                }
-            }
-            KeyEvent.KEYCODE_3 -> {
-                if (event.action == KeyEvent.ACTION_DOWN) {
-                    showToast("Presione nuevamente el boton Nº3 para desactivar todas las publicidades")
+                    val streamingIntent = Intent(this, Streaming::class.java)
+                    streamingIntent.putExtra("disableAdvertisingIntent", true)
+                    startActivity(streamingIntent)
+                    disableTimer()
                     finish()
                     return true
                 }
             }
         }
         return super.dispatchKeyEvent(event)
-    }
-
-    private fun showToast(message: String) {
-        runOnUiThread {
-            Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -233,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference =
-            sharedPreferences.getString("url_preference", "http://supranet.ar/marito")
+            sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
         webView.loadUrl(urlPreference.toString())
 
         // Ocultar el ActionBar
@@ -355,32 +349,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun activateTimer() {
-        if (timer == null) {
-            timer = Timer()
-            val task = object : TimerTask() {
-                var isStreamingActivityShowing = false
-                override fun run() {
-                    runOnUiThread {
-                        if (isStreamingActivityShowing) {
-                            val intent = Intent(this@MainActivity, Streaming::class.java)
-                            startActivity(intent)
-                            isStreamingActivityShowing = false
-                            timer?.cancel()
-                            timer = null
-                            finish()
-                        } else {
-                            isStreamingActivityShowing = true
-                        }
+        if (executor == null || executor?.isShutdown == true) {
+            executor = Executors.newSingleThreadScheduledExecutor()
+            val task = Runnable {
+                runOnUiThread {
+                    if (isStreamingActivityShowing) {
+                        val intent = Intent(this@MainActivity, Streaming::class.java)
+                        startActivity(intent)
+                        isStreamingActivityShowing = false
+                        executor?.shutdown()
+                        finish()
+                    } else {
+                        isStreamingActivityShowing = true
                     }
                 }
             }
-            timer?.schedule(task, 0, 1 * 60 * 1000)
+            executor?.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES)
         }
     }
 
     private fun disableTimer(){
-        timer?.cancel()
-        timer = null
+        executor?.shutdown()
+        executor = null
+        Alerter.create(this)
+            .setTitle("Publicidad total activada")
+            .setIcon(R.drawable.supranet)
+            .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+            .setLayoutGravity(Gravity.BOTTOM)
+            .setIconSize(R.dimen.custom_icon_size)
+            .setBackgroundColorRes(R.color.md_theme_light_outline)
+            .show()
     }
 
     private fun showPasswordDialog() {
@@ -404,7 +402,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer?.cancel()
-        timer = null
+        executor?.shutdown()
+        executor = null
     }
 }

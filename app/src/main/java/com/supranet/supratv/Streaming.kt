@@ -6,16 +6,15 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewClientCompat
+import com.tapadoo.alerter.Alerter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,20 +22,23 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 class Streaming : AppCompatActivity() {
 
     private lateinit var videoView: VideoView
     private lateinit var webView: android.webkit.WebView
-    private val handler = Handler()
     private var webViewVisible = false
     private var isWebViewEnabled = true
     private var currentChannelIndex = 0
     private var channels: List<String> = emptyList()
     private var urls: MutableList<String> = mutableListOf()
-    private var timer: Timer? = null
     private lateinit var sharedPreferences: SharedPreferences
+    private var scheduledExecutorService: ScheduledExecutorService? = null
+    private var scheduledFuture: ScheduledFuture<*>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +72,19 @@ class Streaming : AppCompatActivity() {
             startVideo()
         }
 
-        // Activa la publicidad minima por defecto
-        minimalAdvertising()
+        // Activa la publicidad base por defecto
+        baseAdvertising()
 
-        // Chequeo del timer para la publicidad parcial
+        // Chequeo del timer para la publicidad mixta
         if (timerActive) {
-            partialAdvertising()
+            mixedAdvertising()
+        }
+
+        // Verificacion del ciclo de vida de la app
+        val disableAdvertisingIntent = intent.getBooleanExtra("disableAdvertisingIntent", false)
+        if (disableAdvertisingIntent) {
+            disableAlmostAdvertising()
+            showToast("Publicidad completa desactivada. Pulse el botón número 4 para desactivar la publicidad base.")
         }
     }
 
@@ -112,7 +121,7 @@ class Streaming : AppCompatActivity() {
             val videoUri = Uri.parse(channels[currentChannelIndex])
             videoView.setVideoURI(videoUri)
             videoView.setOnErrorListener { _, _, _ ->
-                showToastChannel("El canal anterior no estaba disponible", Toast.LENGTH_LONG)
+                showToastChannel("El canal anterior no se encontraba disponible.")
                 switchToNextChannel()
                 true
             }
@@ -120,9 +129,16 @@ class Streaming : AppCompatActivity() {
         }
     }
 
-    private fun showToastChannel(message: String, duration: Int) {
+    // Libreria Alerter para notificaciones de canales
+    private fun showToastChannel(message: String) {
         runOnUiThread {
-            Toast.makeText(this@Streaming, message, duration).show()
+            Alerter.create(this)
+                .setTitle(message)
+                .setIcon(R.drawable.supranet)
+                .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+                .setIconSize(R.dimen.custom_icon_size)
+                .setBackgroundColorRes(R.color.md_theme_light_outline)
+                .show()
         }
     }
 
@@ -139,32 +155,34 @@ class Streaming : AppCompatActivity() {
             }
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    if (timer != null) {
-                        timer?.cancel()
-                        timer = null
-                        showToast("Publicidad parcial desactivada")
-                        sharedPreferences.edit().putBoolean("timerActive", false).apply()
-                    } else {
-                        partialAdvertising()
-                        showToast("Publicidad parcial activada")
-                        sharedPreferences.edit().putBoolean("timerActive", true).apply()
-                    }
+                        disableAllAdvertising()
+                        baseAdvertising()
+                        showToast("Publicidad base activada.")
                     return true
                 }
             }
             KeyEvent.KEYCODE_2 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    showToast("Publicidad completa activada")
-                    disableTimer()
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
+                        disableAllAdvertising()
+                        mixedAdvertising()
+                        showToast("Publicidad mixta activada.")
+                        sharedPreferences.edit().putBoolean("timerActive", true).apply()
                     return true
                 }
             }
             KeyEvent.KEYCODE_3 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
-                    showToast("Todos los modos de publicidad han sido desactivados")
-                    disableTimer()
+                    disableAllAdvertising()
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_4 -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    showToast("Todos los modos de publicidad han sido desactivados.")
+                    disableAllAdvertising()
                     return true
                 }
             }
@@ -190,16 +208,24 @@ class Streaming : AppCompatActivity() {
         videoView.start()
     }
 
+    // Libreria Alerter para notificaciones de publicidades
     private fun showToast(message: String) {
         runOnUiThread {
-            Toast.makeText(this@Streaming, message, Toast.LENGTH_SHORT).show()
+            Alerter.create(this)
+                .setTitle(message)
+                .setIcon(R.drawable.supranet)
+                .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+                .setLayoutGravity(Gravity.BOTTOM)
+                .setIconSize(R.dimen.custom_icon_size)
+                .setBackgroundColorRes(R.color.md_theme_light_outline)
+                .show()
         }
     }
 
-    // Configuracion de la publicidad en streaming
+    // Logica de publicidad base
     private var currentUrlIndex = 0
 
-    private fun minimalAdvertising() {
+    private fun baseAdvertising() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
@@ -215,21 +241,23 @@ class Streaming : AppCompatActivity() {
                 connection.disconnect()
 
                 runOnUiThread {
-                    handler.postDelayed({
+                    scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+                    scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
                         if (isWebViewEnabled) {
-                            if (webViewVisible) {
-                                webView.visibility = View.GONE
-                            } else {
-                                webView.visibility = View.VISIBLE
-                                if (currentUrlIndex < urls.size) {
-                                    webView.loadUrl(urls[currentUrlIndex])
-                                    currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                            runOnUiThread {
+                                if (webViewVisible) {
+                                    webView.visibility = View.GONE
+                                } else {
+                                    webView.visibility = View.VISIBLE
+                                    if (currentUrlIndex < urls.size) {
+                                        webView.loadUrl(urls[currentUrlIndex])
+                                        currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                                    }
                                 }
+                                webViewVisible = !webViewVisible
                             }
-                            webViewVisible = !webViewVisible
                         }
-                        minimalAdvertising()
-                    }, 35 * 1000)
+                    }, 0, 35, TimeUnit.SECONDS)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -237,27 +265,44 @@ class Streaming : AppCompatActivity() {
         }
     }
 
-    // Timer para la publicidad parcial
-    private fun partialAdvertising() {
-        if (timer == null) {
-            timer = Timer()
-            val task = object : TimerTask() {
-                override fun run() {
-                    runOnUiThread {
-                        val intent = Intent(this@Streaming, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }
+    private fun stopBaseAdvertising() {
+        scheduledFuture?.cancel(true)
+        scheduledExecutorService?.shutdown()
+        webView.visibility = View.GONE
+        webViewVisible = false
+    }
+
+    // Logica de publicidad mixta
+    private fun mixedAdvertising() {
+        stopMixedAdvertising()
+        if (scheduledExecutorService == null) {
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+            scheduledExecutorService?.schedule({
+                runOnUiThread {
+                    val intent = Intent(this@Streaming, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 }
-            }
-            timer?.schedule(task, 60 * 1000)
+            }, 60, TimeUnit.SECONDS)
         }
     }
 
-    private fun disableTimer() {
-        timer?.cancel()
-        timer = null
+    private fun stopMixedAdvertising() {
+        scheduledFuture?.cancel(true)
+        scheduledExecutorService?.shutdownNow()
+        scheduledExecutorService = null
+    }
+
+    // Logica para desactivar las publicidades en diferentes estados
+    private fun disableAllAdvertising() {
         sharedPreferences.edit().putBoolean("timerActive", false).apply()
+        stopBaseAdvertising()
+        stopMixedAdvertising()
+    }
+
+    private fun disableAlmostAdvertising() {
+        sharedPreferences.edit().putBoolean("timerActive", false).apply()
+        stopMixedAdvertising()
     }
 
     override fun onResume() {
@@ -272,12 +317,12 @@ class Streaming : AppCompatActivity() {
         super.onPause()
         videoView.pause()
         sharedPreferences.edit().putInt("currentChannelIndex", currentChannelIndex).apply()
+        stopMixedAdvertising()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
-        timer?.cancel()
-        timer = null
+        stopMixedAdvertising()
+        stopBaseAdvertising()
     }
 }
