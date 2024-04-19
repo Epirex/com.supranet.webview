@@ -365,7 +365,8 @@ class Streaming : AppCompatActivity() {
                 val isConnected = networkInfo != null && networkInfo.isConnectedOrConnecting
                 if (isConnected) {
                     Alerter.hide()
-                    videoView.start()
+                    videoView.stopPlayback()
+                    startVideo()
                     webView.reload()
                 } else {
                     checkInternetConnection()
