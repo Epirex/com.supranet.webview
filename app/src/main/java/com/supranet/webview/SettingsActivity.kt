@@ -79,6 +79,18 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
 
+            // Salir de la App
+            val exitAppPreference = findPreference<Preference>("exit_app")
+            exitAppPreference?.setOnPreferenceClickListener {
+                clearDefaultLauncherPreferences()
+                activity?.finishAffinity()
+                true
+            }
+        }
+
+        private fun clearDefaultLauncherPreferences() {
+            val pm = requireActivity().packageManager
+            pm.clearPackagePreferredActivities(requireActivity().packageName)
         }
 
         class ScheduleSettingsFragment : PreferenceFragmentCompat() {
