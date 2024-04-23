@@ -51,8 +51,6 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
-        val color: Int = Color.parseColor("#D50002")
-        webView.setBackgroundColor(color)
 
         val layoutParams = FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -127,14 +125,19 @@ class Streaming : AppCompatActivity() {
     private fun startVideo() {
         runOnUiThread {
             videoView = findViewById(R.id.videoview)
-            val videoUri = Uri.parse(channels[currentChannelIndex])
-            videoView.setVideoURI(videoUri)
-            videoView.setOnErrorListener { _, _, _ ->
-                showToastChannel("El canal anterior no se encontraba disponible.")
-                switchToNextChannel()
-                true
+            if (channels.isNotEmpty()) {
+                val channelIndex = currentChannelIndex % channels.size
+                val videoUri = Uri.parse(channels[channelIndex])
+                videoView.setVideoURI(videoUri)
+                videoView.setOnErrorListener { _, _, _ ->
+                    showToastChannel("El canal anterior no se encontraba disponible.")
+                    switchToNextChannel()
+                    true
+                }
+                videoView.start()
+            } else {
+                showToastChannel("No hay canales disponibles.")
             }
-            videoView.start()
         }
     }
 
@@ -237,7 +240,7 @@ class Streaming : AppCompatActivity() {
     private fun baseAdvertising() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
+                val url = URL("http://supranet.ar/webview/electrohobby/urlstvbar.txt")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
@@ -254,19 +257,14 @@ class Streaming : AppCompatActivity() {
                     scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
                         if (isWebViewEnabled) {
                             runOnUiThread {
-                                if (webViewVisible) {
-                                    webView.visibility = View.GONE
-                                } else {
-                                    webView.visibility = View.VISIBLE
-                                    if (currentUrlIndex < urls.size) {
-                                        webView.loadUrl(urls[currentUrlIndex])
-                                        currentUrlIndex = (currentUrlIndex + 1) % urls.size
-                                    }
+                                webView.visibility = View.VISIBLE
+                                if (currentUrlIndex < urls.size) {
+                                    webView.loadUrl(urls[currentUrlIndex])
+                                    currentUrlIndex = (currentUrlIndex + 1) % urls.size
                                 }
-                                webViewVisible = !webViewVisible
                             }
                         }
-                    }, 0, 35, TimeUnit.SECONDS)
+                    }, 0, 30, TimeUnit.MINUTES)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

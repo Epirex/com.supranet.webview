@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference =
-            sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
+            sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/")
         webView.loadUrl(urlPreference.toString())
 
         // Ocultar el ActionBar
