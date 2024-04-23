@@ -222,11 +222,16 @@ class Streaming : AppCompatActivity() {
     }
 
     private fun switchToNextChannel() {
-        currentChannelIndex = (currentChannelIndex + 1) % channels.size
-        val videoUri = Uri.parse(channels[currentChannelIndex])
-        videoView.setVideoURI(videoUri)
-        videoView.start()
+        if (channels.isNotEmpty()) {
+            currentChannelIndex = (currentChannelIndex + 1) % channels.size
+            val videoUri = Uri.parse(channels[currentChannelIndex])
+            videoView.setVideoURI(videoUri)
+            videoView.start()
+        } else {
+            showToastChannel("El canal anterior no pudo cargarse.")
+        }
     }
+
 
     private fun switchToPreviousChannel() {
         currentChannelIndex = if (currentChannelIndex == 0) {
