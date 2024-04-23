@@ -1,7 +1,6 @@
 package com.supranet.supratv
 
 import android.content.*
-import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
@@ -39,6 +38,7 @@ class Streaming : AppCompatActivity() {
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
     private var connectivityReceiver: ConnectivityReceiver? = null
+    private var advertisingState = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,9 +70,6 @@ class Streaming : AppCompatActivity() {
             startVideo()
         }
 
-        // Activa la publicidad base por defecto
-        baseAdvertising()
-
         // Chequeo del timer para la publicidad mixta
         if (timerActive) {
             mixedAdvertising()
@@ -91,8 +88,10 @@ class Streaming : AppCompatActivity() {
         val disableAdvertisingIntent = intent.getBooleanExtra("disableAdvertisingIntent", false)
         if (disableAdvertisingIntent) {
             disableAlmostAdvertising()
-            showToast("Publicidad completa desactivada. Pulse el botón número 4 para desactivar la publicidad base.")
         }
+        val advertisingMode = intent.getIntExtra("ADVERTISING_MODE", 0)
+        advertisingState = advertisingMode
+        activateAdvertisingState()
     }
 
 
@@ -136,7 +135,13 @@ class Streaming : AppCompatActivity() {
                 }
                 videoView.start()
             } else {
-                showToastChannel("No hay canales disponibles.")
+                Alerter.create(this)
+                    .setTitle("Lo sentimos, parece que hay un problema con el canal. Por favor, intente con otro canal.")
+                    .setIcon(R.drawable.supranet)
+                    .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+                    .setIconSize(R.dimen.custom_icon_size)
+                    .setBackgroundColorRes(R.color.md_theme_light_outline)
+                    .show()
             }
         }
     }
@@ -164,6 +169,20 @@ class Streaming : AppCompatActivity() {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 switchToPreviousChannel()
                 return true
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    advertisingState = (advertisingState + 1) % 4
+                    activateAdvertisingState()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    advertisingState = if (advertisingState == 0) 3 else advertisingState - 1
+                    activateAdvertisingState()
+                    return true
+                }
             }
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
@@ -326,6 +345,31 @@ class Streaming : AppCompatActivity() {
                 .setIconSize(R.dimen.custom_icon_size)
                 .setBackgroundColorRes(R.color.md_theme_light_outline)
                 .show()
+        }
+    }
+
+    private fun activateAdvertisingState() {
+        when (advertisingState) {
+            0 -> {
+                showToast("Publicidad base activada.")
+                disableAllAdvertising()
+                baseAdvertising()
+            }
+            1 -> {
+                showToast("Publicidad mixta activada.")
+                disableAllAdvertising()
+                mixedAdvertising()
+            }
+            2 -> {
+                disableAllAdvertising()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+            3 -> {
+                showToast("Todos los modos de publicidad han sido desactivados.")
+                disableAllAdvertising()
+            }
         }
     }
 

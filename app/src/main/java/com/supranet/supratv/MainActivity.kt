@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_home -> {
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -66,7 +66,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Toast.makeText(applicationContext, "Pulse el botón número 4 para desactivar la publicidad completa.", Toast.LENGTH_SHORT)
+        Alerter.create(this)
+            .setTitle("Primero necesita desactivar la publicidad total para salir de la App.")
+            .setIcon(R.drawable.supranet)
+            .setTitleAppearance(R.style.AlerterTitleTextAppearance)
+            .setIconSize(R.dimen.custom_icon_size)
+            .setBackgroundColorRes(R.color.md_theme_light_outline)
             .show()
     }
 
@@ -76,6 +81,28 @@ class MainActivity : AppCompatActivity() {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     val streamingIntent = Intent(this, Streaming::class.java)
                     streamingIntent.putExtra("disableAdvertisingIntent", true)
+                    startActivity(streamingIntent)
+                    disableTimer()
+                    finish()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val streamingIntent = Intent(this, Streaming::class.java)
+                    streamingIntent.putExtra("disableAdvertisingIntent", true)
+                    streamingIntent.putExtra("ADVERTISING_MODE", 1)
+                    startActivity(streamingIntent)
+                    disableTimer()
+                    finish()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val streamingIntent = Intent(this, Streaming::class.java)
+                    streamingIntent.putExtra("disableAdvertisingIntent", true)
+                    streamingIntent.putExtra("ADVERTISING_MODE", 3)
                     startActivity(streamingIntent)
                     disableTimer()
                     finish()
@@ -227,7 +254,7 @@ class MainActivity : AppCompatActivity() {
         // Cargar URL
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val urlPreference =
-            sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/")
+            sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
         webView.loadUrl(urlPreference.toString())
 
         // Ocultar el ActionBar
@@ -372,7 +399,7 @@ class MainActivity : AppCompatActivity() {
         executor?.shutdown()
         executor = null
         Alerter.create(this)
-            .setTitle("Publicidad total activada")
+            .setTitle("Publicidad total activada.")
             .setIcon(R.drawable.supranet)
             .setTitleAppearance(R.style.AlerterTitleTextAppearance)
             .setLayoutGravity(Gravity.BOTTOM)
