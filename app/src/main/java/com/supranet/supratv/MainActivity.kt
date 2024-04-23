@@ -382,6 +382,7 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (isStreamingActivityShowing) {
                         val intent = Intent(this@MainActivity, Streaming::class.java)
+                        intent.putExtra("ADVERTISING_MODE", 1)
                         startActivity(intent)
                         isStreamingActivityShowing = false
                         executor?.shutdown()
@@ -391,7 +392,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            executor?.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES)
+            executor?.scheduleAtFixedRate(task, 0, 2, TimeUnit.MINUTES)
         }
     }
 

@@ -309,7 +309,7 @@ class Streaming : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 }
-            }, 60, TimeUnit.SECONDS)
+            }, 10, TimeUnit.MINUTES)
         }
     }
 
@@ -359,6 +359,7 @@ class Streaming : AppCompatActivity() {
                 showToast("Publicidad mixta activada.")
                 disableAllAdvertising()
                 mixedAdvertising()
+                sharedPreferences.edit().putBoolean("timerActive", true).apply()
             }
             2 -> {
                 disableAllAdvertising()
