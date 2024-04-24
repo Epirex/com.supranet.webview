@@ -4,6 +4,7 @@ import android.content.*
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewClientCompat
 import com.tapadoo.alerter.Alerter
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,7 @@ class Streaming : AppCompatActivity() {
     private var scheduledFuture: ScheduledFuture<*>? = null
     private var connectivityReceiver: ConnectivityReceiver? = null
     private var advertisingState = 0
+    private val handler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +100,7 @@ class Streaming : AppCompatActivity() {
 
     // Lectura del listado m3u
     private fun loadChannels(onChannelsLoaded: () -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val url = URL("http://supranet.ar/webview/elnegrito/negrito.m3u")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
@@ -129,11 +132,11 @@ class Streaming : AppCompatActivity() {
                 val videoUri = Uri.parse(channels[channelIndex])
                 videoView.setVideoURI(videoUri)
                 videoView.setOnErrorListener { _, _, _ ->
-                    showToastChannel("El canal anterior no se encontraba disponible.")
-                    switchToNextChannel()
+                    checkPlaybackRunnable
                     true
                 }
                 videoView.start()
+                handler.postDelayed(checkPlaybackRunnable, 3000)
             } else {
                 Alerter.create(this)
                     .setTitle("Lo sentimos, parece que hay un problema con el canal. Por favor, intente con otro canal.")
@@ -222,18 +225,21 @@ class Streaming : AppCompatActivity() {
     }
 
     private fun switchToNextChannel() {
+        handler.removeCallbacks(checkPlaybackRunnable)
         if (channels.isNotEmpty()) {
             currentChannelIndex = (currentChannelIndex + 1) % channels.size
             val videoUri = Uri.parse(channels[currentChannelIndex])
             videoView.setVideoURI(videoUri)
             videoView.start()
+            handler.postDelayed(checkPlaybackRunnable, 3000)
         } else {
-            showToastChannel("El canal anterior no pudo cargarse.")
         }
     }
 
 
     private fun switchToPreviousChannel() {
+        handler.removeCallbacks(checkPlaybackRunnable)
+        if (channels.isNotEmpty()) {
         currentChannelIndex = if (currentChannelIndex == 0) {
             channels.size - 1
         } else {
@@ -242,6 +248,9 @@ class Streaming : AppCompatActivity() {
         val videoUri = Uri.parse(channels[currentChannelIndex])
         videoView.setVideoURI(videoUri)
         videoView.start()
+            handler.postDelayed(checkPlaybackRunnable, 3000)
+        } else {
+        }
     }
 
     // Libreria Alerter para notificaciones de publicidades
@@ -379,6 +388,15 @@ class Streaming : AppCompatActivity() {
         }
     }
 
+    private val checkPlaybackRunnable = object : Runnable {
+        override fun run() {
+            if (!videoView.isPlaying) {
+                showToastChannel("El canal anterior no se encontraba disponible.")
+                switchToNextChannel()
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (!::videoView.isInitialized) {
@@ -398,6 +416,7 @@ class Streaming : AppCompatActivity() {
         super.onDestroy()
         stopMixedAdvertising()
         stopBaseAdvertising()
+        handler.removeCallbacks(checkPlaybackRunnable)
         connectivityReceiver?.let {
             unregisterReceiver(it)
         }
