@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -33,12 +35,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var passwordDialog: Dialog
     private var isStreamingActivityShowing = false
     private var executor: ScheduledExecutorService? = null
+    private var previousUrl: String? = null
+    private val handler = Handler()
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
-            refreshWebView()
+            checkNetworkAndRefreshWebView()
             true
         }
         return true
@@ -55,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_home -> {
+                checkNetworkAndRefreshWebView()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
                     sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
@@ -257,6 +262,12 @@ class MainActivity : AppCompatActivity() {
             sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
         webView.loadUrl(urlPreference.toString())
 
+        checkNetworkAndRefreshWebView()
+        // Registrar el receptor de difusión para las acciones de cambio de conectividad
+        val filter = IntentFilter()
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(connectivityReceiver, filter)
+
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
         supportActionBar?.apply {
@@ -351,7 +362,7 @@ class MainActivity : AppCompatActivity() {
         if (refreshInterval > 0) {
             handler.postDelayed(object : Runnable {
                 override fun run() {
-                    webView.reload()
+                    checkNetworkAndRefreshWebView()
                     handler.postDelayed(this, refreshInterval * 60 * 1000L)
                 }
             }, refreshInterval * 60 * 1000L)
@@ -432,15 +443,46 @@ class MainActivity : AppCompatActivity() {
     // se recargara la pagina actual, esta funcion sera para casos de emergencia
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
-            webView.reload()
+            checkNetworkAndRefreshWebView()
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun checkNetworkAndRefreshWebView() {
+        if (isNetworkAvailable()) {
+            previousUrl?.let { webView.loadUrl(it) }
+        } else {
+            previousUrl = webView.url
+            // añadire los elementos mas tarde, aun no lo termine
+            webView.loadUrl("file:///android_asset/error.html")
+        }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
+    }
+
+    private val connectivityReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val isConnected = isNetworkAvailable()
+            if (isConnected) {
+                handler.postDelayed({
+                    checkNetworkAndRefreshWebView()
+                }, 5000)
+            } else {
+                checkNetworkAndRefreshWebView()
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         executor?.shutdown()
         executor = null
+        unregisterReceiver(connectivityReceiver)
     }
 }
