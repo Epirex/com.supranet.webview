@@ -360,7 +360,9 @@ class MainActivity : AppCompatActivity() {
             scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
                 runOnUiThread {
                     checkNetworkAndRefreshWebView()
-                    checkTurns()
+                    if (checkTurnsForRefresh()) {
+                        checkTurns()
+                    }
                 }
             }, refreshIntervalPref, refreshIntervalPref, TimeUnit.MINUTES)
         }
@@ -369,6 +371,14 @@ class MainActivity : AppCompatActivity() {
     private fun stopRefreshTimer() {
         scheduledFuture?.cancel(true)
         scheduledExecutorService?.shutdownNow()
+    }
+
+    private fun checkTurnsForRefresh(): Boolean {
+        val turnoMañanaActivo = sharedPreferences.getBoolean("turno_mañana", false)
+        val turnoMediodiaActivo = sharedPreferences.getBoolean("turno_mediodia", false)
+        val turnoTardeActivo = sharedPreferences.getBoolean("turno_tarde", false)
+        val turnoNocheActivo = sharedPreferences.getBoolean("turno_noche", false)
+        return turnoMañanaActivo || turnoMediodiaActivo || turnoTardeActivo || turnoNocheActivo
     }
 
     private fun showPasswordDialog() {
