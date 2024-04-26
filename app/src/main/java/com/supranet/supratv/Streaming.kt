@@ -307,7 +307,7 @@ class Streaming : AppCompatActivity() {
                                     currentUrlIndex = (currentUrlIndex + 1) % urls.size
                                 }
                             }
-                        }, 0, 1, TimeUnit.MINUTES)
+                        }, 0, 30, TimeUnit.MINUTES)
                     } else {
                         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
                         scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
