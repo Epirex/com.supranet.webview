@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="banner_preference"
+        android:layout="@layout/settings_streaming"
+        android:title="Banner"
+        android:selectable="false"/>
+
+    <EditTextPreference
+        android:key="base_advertising_time"
+        android:title="Publicidad Base"
+        android:inputType="number"
+        android:defaultValue="30"
+        android:summary="Establece la frecuencia de la publicidad base en minutos. Este valor determina tanto la duración de la aparición como el intervalo de ocultación." />
+
+    <EditTextPreference
+        android:key="mixed_streaming_time"
+        android:title="Publicidad Mixta: Tiempo del Streaming"
+        android:inputType="number"
+        android:defaultValue="10"
+        android:summary="Define el intervalo libre de publicidad durante el streaming en minutos." />
+
+    <EditTextPreference
+        android:key="mixed_advertising_time"
+        android:title="Publicidad Mixta: Tiempo del la Publicidad"
+        android:inputType="number"
+        android:defaultValue="2"
+        android:summary="Define la duración que la publicidad será visible para el usuario en minutos." />
+</PreferenceScreen>

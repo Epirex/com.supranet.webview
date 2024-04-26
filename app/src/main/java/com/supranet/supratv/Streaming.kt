@@ -13,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import androidx.webkit.WebViewClientCompat
 import com.tapadoo.alerter.Alerter
 import kotlinx.coroutines.Dispatchers
@@ -187,6 +188,14 @@ class Streaming : AppCompatActivity() {
                     return true
                 }
             }
+            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val intent = Intent(this, SettingsStreaming::class.java)
+                    startActivity(intent)
+                    finish()
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_1 -> {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                         disableAllAdvertising()
@@ -271,6 +280,8 @@ class Streaming : AppCompatActivity() {
     private var currentUrlIndex = 0
 
     private fun baseAdvertising() {
+        val baseAdvertisingTime = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("base_advertising_time", "30")?.toLong() ?: 30
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val url = URL("http://supranet.ar/webview/electrohobby/urlstvbar.txt")
@@ -290,14 +301,18 @@ class Streaming : AppCompatActivity() {
                     scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
                         if (isWebViewEnabled) {
                             runOnUiThread {
-                                webView.visibility = View.VISIBLE
-                                if (currentUrlIndex < urls.size) {
-                                    webView.loadUrl(urls[currentUrlIndex])
-                                    currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                                if (webViewVisible) {
+                                    webView.visibility = View.GONE
+                                } else {
+                                    webView.visibility = View.VISIBLE
+                                    if (currentUrlIndex < urls.size) {
+                                        webView.loadUrl(urls[currentUrlIndex])
+                                        currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                                    }
                                 }
                             }
                         }
-                    }, 0, 30, TimeUnit.MINUTES)
+                    }, 0, baseAdvertisingTime, TimeUnit.MINUTES)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -315,6 +330,8 @@ class Streaming : AppCompatActivity() {
     // Logica de publicidad mixta
     private fun mixedAdvertising() {
         stopMixedAdvertising()
+        val mixedAdvertisingTime = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("mixed_streaming_time", "10")?.toLong() ?: 10
         if (scheduledExecutorService == null) {
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
             scheduledExecutorService?.schedule({
@@ -323,7 +340,7 @@ class Streaming : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 }
-            }, 10, TimeUnit.MINUTES)
+            }, mixedAdvertisingTime, TimeUnit.MINUTES)
         }
     }
 
