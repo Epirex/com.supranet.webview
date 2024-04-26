@@ -281,7 +281,7 @@ class Streaming : AppCompatActivity() {
 
     private fun baseAdvertising() {
         val baseAdvertisingTime = PreferenceManager.getDefaultSharedPreferences(this)
-            .getString("base_advertising_time", "30")?.toLong() ?: 30
+            .getString("base_advertising_time", "1")?.toLong() ?: 30
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val url = URL("http://supranet.ar/webview/electrohobby/urlstvbar.txt")
@@ -297,22 +297,36 @@ class Streaming : AppCompatActivity() {
                 connection.disconnect()
 
                 runOnUiThread {
-                    scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-                    scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
-                        if (isWebViewEnabled) {
+                    if (baseAdvertisingTime == 0L) {
+                        webView.visibility = View.VISIBLE
+                        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+                        scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
                             runOnUiThread {
-                                if (webViewVisible) {
-                                    webView.visibility = View.GONE
-                                } else {
-                                    webView.visibility = View.VISIBLE
-                                    if (currentUrlIndex < urls.size) {
-                                        webView.loadUrl(urls[currentUrlIndex])
-                                        currentUrlIndex = (currentUrlIndex + 1) % urls.size
-                                    }
+                                if (currentUrlIndex < urls.size) {
+                                    webView.loadUrl(urls[currentUrlIndex])
+                                    currentUrlIndex = (currentUrlIndex + 1) % urls.size
                                 }
                             }
-                        }
-                    }, 0, baseAdvertisingTime, TimeUnit.MINUTES)
+                        }, 0, 1, TimeUnit.MINUTES)
+                    } else {
+                        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+                        scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
+                            if (isWebViewEnabled) {
+                                runOnUiThread {
+                                    if (webViewVisible) {
+                                        webView.visibility = View.GONE
+                                    } else {
+                                        webView.visibility = View.VISIBLE
+                                        if (currentUrlIndex < urls.size) {
+                                            webView.loadUrl(urls[currentUrlIndex])
+                                            currentUrlIndex = (currentUrlIndex + 1) % urls.size
+                                        }
+                                    }
+                                    webViewVisible = !webViewVisible
+                                }
+                            }
+                        }, 0, baseAdvertisingTime, TimeUnit.MINUTES)
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
