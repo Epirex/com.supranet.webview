@@ -161,7 +161,7 @@ class Streaming : AppCompatActivity() {
                 handler.postDelayed(checkPlaybackRunnable, 3000)
             } else {
                 Alerter.create(this)
-                    .setTitle("Lo sentimos, parece que hay un problema con el canal. Por favor, intente con otro canal.")
+                    .setTitle("Cargando canales...")
                     .setIcon(R.drawable.supranet)
                     .setTitleAppearance(R.style.AlerterTitleTextAppearance)
                     .setIconSize(R.dimen.custom_icon_size)
