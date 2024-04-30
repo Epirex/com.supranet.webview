@@ -34,6 +34,7 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation|screenLayout|fontScale|touchscreen|uiMode"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+        <receiver android:name=".ShutdownReceiver"/>
         <activity
             android:name=".Streaming"
             android:configChanges="orientation|screenSize"

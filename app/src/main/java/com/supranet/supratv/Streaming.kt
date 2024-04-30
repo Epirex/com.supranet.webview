@@ -1,5 +1,7 @@
 package com.supranet.supratv
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.*
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -23,6 +25,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -96,6 +99,24 @@ class Streaming : AppCompatActivity() {
         val advertisingMode = intent.getIntExtra("ADVERTISING_MODE", 0)
         advertisingState = advertisingMode
         activateAdvertisingState()
+
+        // Utilizamos AlarmManager para apagar la TVBOX a las 02:00 a.m.
+        // Esto garantiza una mayor vida util para los dispositivos
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, ShutdownReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 2)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        }
+
+        if (calendar.timeInMillis < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
 
