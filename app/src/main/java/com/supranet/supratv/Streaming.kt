@@ -103,7 +103,7 @@ class Streaming : AppCompatActivity() {
     private fun loadChannels(onChannelsLoaded: () -> Unit) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("http://supranet.ar/webview/elnegrito/negrito.m3u")
+                val url = URL("https://raw.githubusercontent.com/Supranet-ar/canales/main/canales.m3u")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
