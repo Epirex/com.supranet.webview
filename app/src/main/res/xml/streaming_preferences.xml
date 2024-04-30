@@ -11,7 +11,7 @@
         android:key="base_advertising_time"
         android:title="Publicidad Base"
         android:inputType="number"
-        android:defaultValue="1"
+        android:defaultValue="0"
         android:summary="Establece la frecuencia de la publicidad base en minutos. Este valor determina el intervalo de aparición. El valor 0 activa de forma indeterminada la publicidad." />
 
     <EditTextPreference
