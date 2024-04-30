@@ -6,7 +6,7 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="http://supranet.ar/electrohobby/screen2"
+            app:defaultValue="http://supranet.ar/elnegrito/horizontal/"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL desde Internet"

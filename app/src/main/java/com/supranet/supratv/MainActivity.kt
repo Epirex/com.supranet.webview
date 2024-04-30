@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 checkTurns()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
+                    sharedPrefs.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         val urlPreference =
-            sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
+            sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
         webView.loadUrl(urlPreference.toString())
 
         checkNetworkAndRefreshWebView()
@@ -571,7 +571,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // si no hay turnos activos, cargar la URL por defecto
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/electrohobby/screen2")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
         webView.loadUrl(urlPreference.toString())
     }
 

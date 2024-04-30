@@ -3,6 +3,7 @@ package com.supranet.supratv
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.*
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
@@ -58,6 +59,8 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
+        val color: Int = Color.parseColor("#D50002")
+        webView.setBackgroundColor(color)
 
         val layoutParams = FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -305,7 +308,7 @@ class Streaming : AppCompatActivity() {
             .getString("base_advertising_time", "1")?.toLong() ?: 30
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("http://supranet.ar/webview/electrohobby/urlstvbar.txt")
+                val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
