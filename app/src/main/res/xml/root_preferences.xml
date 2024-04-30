@@ -65,12 +65,6 @@
             android:summary="Ver detalles de la aplicación en el sistema"
             android:icon="@drawable/android_info" />
 
-        <Preference
-            android:key="exit_app"
-            android:title="Salir de la App"
-            android:summary="Cierra la aplicación completamente"
-            android:icon="@drawable/android_exit" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>
