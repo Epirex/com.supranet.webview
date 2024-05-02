@@ -10,21 +10,18 @@
     <EditTextPreference
         android:key="base_advertising_time"
         android:title="Publicidad Base"
-        android:inputType="number"
         android:defaultValue="1"
         android:summary="Establece la frecuencia de la publicidad base en minutos. Este valor determina el intervalo de aparición. El valor 0 activa de forma indeterminada la publicidad." />
 
     <EditTextPreference
         android:key="mixed_streaming_time"
         android:title="Publicidad Mixta: Tiempo de Streaming"
-        android:inputType="number"
         android:defaultValue="10"
         android:summary="Define el intervalo libre de publicidad durante el streaming en minutos." />
 
     <EditTextPreference
         android:key="mixed_advertising_time"
         android:title="Publicidad Mixta: Tiempo de Publicidad"
-        android:inputType="number"
         android:defaultValue="2"
         android:summary="Define la duración que la publicidad será visible para el usuario en minutos." />
 </PreferenceScreen>
