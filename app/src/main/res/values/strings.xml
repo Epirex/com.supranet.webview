@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SupraTV</string>
+    <string name="app_name">TVBar</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
