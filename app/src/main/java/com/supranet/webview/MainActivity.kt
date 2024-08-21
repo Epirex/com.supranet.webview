@@ -23,6 +23,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.*
 import java.util.*
+import org.json.JSONObject
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -99,6 +100,9 @@ class MainActivity : AppCompatActivity() {
 
         // Mantener pantalla siempre encendida
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // API Registro
+        checkAppRegistration()
 
         // URL del servidor
         val url = "http://supranet.ar/webview/devices.txt"
@@ -547,6 +551,51 @@ class MainActivity : AppCompatActivity() {
         // si no hay turnos activos, cargar la URL por defecto
         val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
         webView.loadUrl(urlPreference.toString())
+    }
+
+    private fun checkAppRegistration() {
+        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        val apiUrl = "http://192.168.100.110:8000/api/tvbox-info/$androidId"
+        val networkTask = object : AsyncTask<Unit, Unit, Boolean>() {
+            override fun doInBackground(vararg params: Unit?): Boolean {
+                var connection: HttpURLConnection? = null
+                try {
+                    val url = URL(apiUrl)
+                    connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = 5000 // Tiempo de espera de conexión (en milisegundos)
+                    connection.readTimeout = 5000 // Tiempo de espera de lectura (en milisegundos)
+                    val responseCode = connection.responseCode
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                        val response = StringBuilder()
+                        var line: String?
+                        while (reader.readLine().also { line = it } != null) {
+                            response.append(line)
+                        }
+                        // Parsea la respuesta JSON
+                        val jsonResponse = JSONObject(response.toString())
+                        // Obtén el valor del estado de pago
+                        return jsonResponse.optBoolean("estado_pago")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    connection?.disconnect()
+                }
+                return false
+            }
+
+            override fun onPostExecute(result: Boolean) {
+                if (result) {
+                    // La aplicación está registrada, puede funcionar normalmente
+                } else {
+                    // La aplicación no está registrada, muestra el error
+                    webView.loadUrl("file:///android_asset/error.html")
+                }
+            }
+        }
+        networkTask.execute()
     }
 
     override fun onResume() {
