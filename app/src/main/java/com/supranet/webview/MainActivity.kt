@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
+import android.graphics.Color
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler()
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
+    private lateinit var assetServer: AssetServer
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                 checkTurns()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", "http://localhost:8080/index.html")
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -86,6 +88,10 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Webview)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Iniciar localhost
+        assetServer = AssetServer(this)
+        assetServer.start()
 
         // Establecer la dirección IP como título del Action Bar
         val ipAddress = getLocalIpAddress()
@@ -216,9 +222,17 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
 
+        // Configuraciones para los panoramas
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        } else {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
+
         // Fondo temporal del webview, esta comentado para usarlo en casos especificos
-        //webView.setBackgroundResource(R.drawable.fondo);
-        //webView.setBackgroundColor(0x00000000);
+        //webView.setBackgroundResource(R.drawable.fondopanorama);
+        webView.setBackgroundColor(Color.BLACK);
+        webView.setBackgroundResource(android.R.color.black);
 
         // Obtencion de datos de SharedPreferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -228,7 +242,7 @@ class MainActivity : AppCompatActivity() {
         startRefreshTimer()
 
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://localhost:8080/index.html")
         webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
@@ -236,10 +250,17 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
 
-                webSettings.useWideViewPort = true
-                webSettings.displayZoomControls = false
-                webSettings.builtInZoomControls = false
-                webSettings.setSupportZoom(false)
+                if (url?.endsWith("index.html") == true) {
+                    webSettings.useWideViewPort = true
+                    webSettings.displayZoomControls = false
+                    webSettings.builtInZoomControls = false
+                    webSettings.setSupportZoom(false)
+                } else {
+                    webSettings.useWideViewPort = true
+                    webSettings.displayZoomControls = false
+                    webSettings.builtInZoomControls = true
+                    webSettings.setSupportZoom(true)
+                }
             }
         }
 
@@ -458,7 +479,7 @@ class MainActivity : AppCompatActivity() {
             previousUrl?.let { webView.loadUrl(it) }
         } else {
             // añadire los elementos mas tarde, aun no lo termine
-            webView.loadUrl("file:///android_asset/error.html")
+            webView.loadUrl("http://localhost:8080/index.html")
         }
     }
 
@@ -545,7 +566,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // si no hay turnos activos, cargar la URL por defecto
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://localhost:8080/index.html")
         webView.loadUrl(urlPreference.toString())
     }
 
@@ -569,6 +590,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+            assetServer.stop()
         }
     }
 }
