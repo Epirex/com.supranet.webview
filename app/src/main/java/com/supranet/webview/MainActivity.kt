@@ -30,6 +30,10 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val BASE_URL = "http://supranet.ar"
+    }
+
     private lateinit var webView: WebView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var passwordDialog: Dialog
@@ -68,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 checkTurns()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar")
+                    sharedPrefs.getString("url_preference", BASE_URL)
                 webView.loadUrl(urlPreference.toString())
                 supportActionBar?.hide()
                 true
@@ -228,7 +232,7 @@ class MainActivity : AppCompatActivity() {
         startRefreshTimer()
 
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL)
         webView.loadUrl(urlPreference.toString())
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
@@ -545,7 +549,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // si no hay turnos activos, cargar la URL por defecto
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar")
+        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL)
         webView.loadUrl(urlPreference.toString())
     }
 
