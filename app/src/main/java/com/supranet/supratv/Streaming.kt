@@ -59,7 +59,7 @@ class Streaming : AppCompatActivity() {
 
         // Webview settings
         webView = android.webkit.WebView(this)
-        val color: Int = Color.parseColor("#D50002")
+        val color: Int = Color.parseColor("#000000")
         webView.setBackgroundColor(color)
 
         val layoutParams = FrameLayout.LayoutParams(
@@ -107,7 +107,7 @@ class Streaming : AppCompatActivity() {
         // Esto garantiza una mayor vida util para los dispositivos
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, ShutdownReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 2)
@@ -308,7 +308,7 @@ class Streaming : AppCompatActivity() {
             .getString("base_advertising_time", "1")?.toLong() ?: 30
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("http://supranet.ar/webview/elnegrito/urlstvbar.txt")
+                val url = URL("http://supranet.ar/webview/burgergrill/urlstvbar.txt")
                 val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))

@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 checkTurns()
                 val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
                 val urlPreference =
-                    sharedPrefs.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
+                    sharedPrefs.getString("url_preference", "http://burgergrill.com.ar/tv1/")
                 webView.loadUrl(urlPreference.toString())
                 true
             }
@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity() {
 
         // Cargar URL
         val urlPreference =
-            sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
+            sharedPreferences.getString("url_preference", "http://burgergrill.com.ar/tv1/")
         webView.loadUrl(urlPreference.toString())
 
         checkNetworkAndRefreshWebView()
@@ -571,7 +571,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // si no hay turnos activos, cargar la URL por defecto
-        val urlPreference = sharedPreferences.getString("url_preference", "http://supranet.ar/elnegrito/horizontal/")
+        val urlPreference = sharedPreferences.getString("url_preference", "http://burgergrill.com.ar/tv1/")
         webView.loadUrl(urlPreference.toString())
     }
 
