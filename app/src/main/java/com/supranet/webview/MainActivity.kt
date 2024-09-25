@@ -219,6 +219,8 @@ class MainActivity : AppCompatActivity() {
         webSettings.allowFileAccess = true
         webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
+        webView.setOnLongClickListener { true }
+        webView.isLongClickable = false
 
         // Fondo temporal del webview, esta comentado para usarlo en casos especificos
         //webView.setBackgroundResource(R.drawable.fondo);
