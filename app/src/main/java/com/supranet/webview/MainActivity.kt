@@ -292,6 +292,9 @@ class MainActivity : AppCompatActivity() {
         if (refreshIntervalPref > 0) {
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
             scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
+                runOnUiThread {
+                    webView.loadUrl(BASE_URL)
+                }
             }, refreshIntervalPref, refreshIntervalPref, TimeUnit.MINUTES)
         }
     }
