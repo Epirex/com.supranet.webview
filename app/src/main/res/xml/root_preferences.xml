@@ -6,11 +6,21 @@
         app:title="@string/messages_header">
 
         <EditTextPreference
-            app:defaultValue="http://supranet.ar"
+            app:defaultValue="http://nomeputies.com.ar/dni/"
             app:key="url_preference"
             app:summary="Ingrese el nuevo URL"
             app:title="Carga un URL desde Internet"
             android:icon="@drawable/android_http" />
+
+        <!-- En res/xml/preferences.xml -->
+        <ListPreference
+            app:key="screensaver_timeout"
+            app:title="Tiempo del protector de pantalla"
+            app:summary="Tiempo de inactividad para activar el protector"
+            app:entries="@array/screensaver_timeout_options"
+            app:entryValues="@array/screensaver_timeout_values"
+            app:defaultValue="3"
+            android:icon="@drawable/android_timer"/>
 
         <CheckBoxPreference
             app:defaultValue="false"

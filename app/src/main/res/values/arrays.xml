@@ -27,4 +27,19 @@
         <item>240</item>
     </string-array>
 
+    <string-array name="screensaver_timeout_options">
+        <item>1 minuto</item>
+        <item>3 minutos</item>
+        <item>5 minutos</item>
+        <item>10 minutos</item>
+        <item>Nunca</item>
+    </string-array>
+    <string-array name="screensaver_timeout_values">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>0</item>
+    </string-array>
+
 </resources>

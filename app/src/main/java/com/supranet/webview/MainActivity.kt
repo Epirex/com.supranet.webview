@@ -23,7 +23,8 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val BASE_URL = "http://supranet.ar"
+        const val BASE_URL = "http://nomeputies.com.ar/dni/"
+        const val SCREENSAVER_URL = "http://nomeputies.com.ar/promptear/"
     }
 
     private lateinit var webView: WebView
@@ -31,6 +32,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var passwordDialog: Dialog
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
+    // Variables para el protector de pantalla
+    private lateinit var inactivityHandler: Handler
+    private lateinit var inactivityRunnable: Runnable
+    private var isScreensaverActive = false
+    private var originalUrl: String? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -180,6 +186,22 @@ class MainActivity : AppCompatActivity() {
                 webSettings.displayZoomControls = false
                 webSettings.builtInZoomControls = false
                 webSettings.setSupportZoom(false)
+
+                // Enfocar automáticamente el input cuando se carga la página del DNI
+                if (url?.startsWith(BASE_URL) == true) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (view != null) {
+                            view.evaluateJavascript(
+                                "(function() { " +
+                                        "   var input = document.getElementById('codigo'); " + // Reemplazar con el ID real
+                                        "   if (input) { " +
+                                        "       input.focus(); " +
+                                        "       input.select(); " +
+                                        "   } " +
+                                        "})();", null)
+                        }
+                    }, 500) // Pequeño delay para asegurar que el DOM esté listo
+                }
             }
         }
 
@@ -224,11 +246,27 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-        // Asigna el GestureDetector al WebView
+        // 1. Inicializar PRIMERO el Handler
+        inactivityHandler = Handler(Looper.getMainLooper())
+
+        inactivityRunnable = Runnable {
+            val currentUrl = webView.url
+            if (currentUrl == BASE_URL) { // Verificación exacta de la URL
+                originalUrl = currentUrl
+                webView.loadUrl(SCREENSAVER_URL)
+                isScreensaverActive = true
+            }
+        }
+
+        // Modificar el OnTouchListener existente
         webView.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
+            handleInactivityTouch()
             false
         }
+
+        // Iniciar el temporizador de inactividad
+        resetInactivityTimer()
 
         // Aplica un custom CSS
         val customCss = sharedPreferences.getBoolean("custom_css", false)
@@ -287,11 +325,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        resetInactivityTimer() // Resetear temporizador con cualquier evento de teclado
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun handleInactivityTouch() {
+        resetInactivityTimer()
+        if (isScreensaverActive) {
+            isScreensaverActive = false
+            originalUrl?.let {
+                if (it == BASE_URL) { // Comparación exacta
+                    webView.loadUrl(it)
+                }
+            }
+        }
+    }
+
+    // Añadir este método para capturar todos los eventos de entrada
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        resetInactivityTimer()
+    }
+
     private fun startRefreshTimer() {
         val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")?.toLong() ?: 30L
         if (refreshIntervalPref > 0) {
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
             scheduledFuture = scheduledExecutorService?.scheduleAtFixedRate({
+                runOnUiThread {
+                    webView.loadUrl(BASE_URL)
+                }
             }, refreshIntervalPref, refreshIntervalPref, TimeUnit.MINUTES)
         }
     }
@@ -340,6 +404,18 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    private fun resetInactivityTimer() {
+        inactivityHandler.removeCallbacks(inactivityRunnable)
+
+        val timeoutPref = sharedPreferences.getString("screensaver_timeout", "3") ?: "3"
+        val timeoutMinutes = timeoutPref.toLong()
+
+        if (timeoutMinutes > 0) {
+            val timeoutMillis = timeoutMinutes * 60 * 1000
+            inactivityHandler.postDelayed(inactivityRunnable, timeoutMillis)
+        }
+    }
+
     // Al presionar el boton volver en el control remoto de la TVBOX
     // se recargara la pagina actual, esta funcion sera para casos de emergencia
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -353,10 +429,17 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         stopRefreshTimer()
         startRefreshTimer()
+        resetInactivityTimer()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        inactivityHandler.removeCallbacks(inactivityRunnable)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        inactivityHandler.removeCallbacks(inactivityRunnable)
         stopRefreshTimer()
         if (passwordDialog.isShowing) {
             passwordDialog.dismiss()
