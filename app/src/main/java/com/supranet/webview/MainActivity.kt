@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var inactivityHandler: Handler
     private lateinit var inactivityRunnable: Runnable
     private var isScreensaverActive = false
-    private var originalUrl: String? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -187,20 +186,20 @@ class MainActivity : AppCompatActivity() {
                 webSettings.builtInZoomControls = false
                 webSettings.setSupportZoom(false)
 
-                // Enfocar automáticamente el input cuando se carga la página del DNI
-                if (url?.startsWith(BASE_URL) == true) {
+                val currentBaseUrl = sharedPreferences.getString("url_preference", BASE_URL)
+                if (currentBaseUrl?.let { url?.startsWith(it) } == true) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (view != null) {
                             view.evaluateJavascript(
                                 "(function() { " +
-                                        "   var input = document.getElementById('codigo'); " + // Reemplazar con el ID real
+                                        "   var input = document.getElementById('codigo'); " +
                                         "   if (input) { " +
                                         "       input.focus(); " +
                                         "       input.select(); " +
                                         "   } " +
                                         "})();", null)
                         }
-                    }, 500) // Pequeño delay para asegurar que el DOM esté listo
+                    }, 500)
                 }
             }
         }
@@ -251,8 +250,8 @@ class MainActivity : AppCompatActivity() {
 
         inactivityRunnable = Runnable {
             val currentUrl = webView.url
-            if (currentUrl == BASE_URL) { // Verificación exacta de la URL
-                originalUrl = currentUrl
+            val currentBaseUrl = sharedPreferences.getString("url_preference", BASE_URL)
+            if (currentUrl == currentBaseUrl) {
                 webView.loadUrl(SCREENSAVER_URL)
                 isScreensaverActive = true
             }
@@ -334,11 +333,8 @@ class MainActivity : AppCompatActivity() {
         resetInactivityTimer()
         if (isScreensaverActive) {
             isScreensaverActive = false
-            originalUrl?.let {
-                if (it == BASE_URL) { // Comparación exacta
-                    webView.loadUrl(it)
-                }
-            }
+            val currentBaseUrl = sharedPreferences.getString("url_preference", BASE_URL)
+            webView.loadUrl(currentBaseUrl.toString())
         }
     }
 
