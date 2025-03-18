@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -14,7 +15,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.BufferedReader
@@ -250,11 +254,46 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-
                 webSettings.useWideViewPort = true
                 webSettings.displayZoomControls = false
                 webSettings.builtInZoomControls = false
                 webSettings.setSupportZoom(false)
+            }
+
+            // Para Android API < 23
+            @Deprecated("Deprecated in Android API level 23")
+            override fun onReceivedError(
+                view: WebView,
+                errorCode: Int,
+                description: String,
+                failingUrl: String
+            ) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                if (!isNetworkAvailable()) {
+                    loadErrorPage()
+                }
+            }
+
+            // Para Android API >= 23
+            override fun onReceivedError(
+                view: WebView,
+                request: WebResourceRequest,
+                error: WebResourceError
+            ) {
+                super.onReceivedError(view, request, error)
+                if (request.isForMainFrame && !isNetworkAvailable()) {
+                    loadErrorPage()
+                }
+            }
+
+            private fun loadErrorPage() {
+                val orientation = resources.configuration.orientation
+                val errorPage = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    "file:///android_asset/errorvertical/index.html"
+                } else {
+                    "file:///android_asset/errorhorizontal/index.html"
+                }
+                webView.loadUrl(errorPage)
             }
         }
 
@@ -500,16 +539,27 @@ class MainActivity : AppCompatActivity() {
         if (isNetworkAvailable()) {
             previousUrl?.let { webView.loadUrl(it) }
         } else {
-            // añadire los elementos mas tarde, aun no lo termine
-            webView.loadUrl("file:///android_asset/error.html")
+            // Determinar orientación actual
+            val orientation = resources.configuration.orientation
+            val errorPage = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                "file:///android_asset/errorvertical/index.html"
+            } else {
+                "file:///android_asset/errorhorizontal/index.html"
+            }
+            webView.loadUrl(errorPage)
         }
     }
-
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
+        }
     }
 
     private val connectivityReceiver = object : BroadcastReceiver() {
