@@ -42,6 +42,15 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler()
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
+    private val SECRET_SEQUENCE = listOf(
+        KeyEvent.KEYCODE_DPAD_UP,
+        KeyEvent.KEYCODE_DPAD_UP,
+        KeyEvent.KEYCODE_DPAD_DOWN,
+        KeyEvent.KEYCODE_DPAD_DOWN
+    )
+    private val inputSequence = mutableListOf<Int>()
+    private val resetHandler = Handler(Looper.getMainLooper())
+    private val resetSequenceTask = Runnable { inputSequence.clear() }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -447,15 +456,43 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            handleSecretSequence(event.keyCode)
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     // Al presionar el boton volver en el control remoto de la TVBOX
     // se recargara la pagina actual, esta funcion sera para casos de emergencia
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
-            checkNetworkAndRefreshWebView()
-            checkTurns()
-            return true
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK -> {
+                checkNetworkAndRefreshWebView()
+                checkTurns()
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
         }
-        return super.onKeyDown(keyCode, event)
+    }
+
+    private fun handleSecretSequence(keyCode: Int) {
+        inputSequence.add(keyCode)
+
+        // Mantener solo los últimos elementos necesarios
+        if (inputSequence.size > SECRET_SEQUENCE.size) {
+            inputSequence.removeAt(0)
+        }
+
+        // Verificar si coincide con la secuencia secreta
+        if (inputSequence == SECRET_SEQUENCE) {
+            showPasswordDialog()
+            inputSequence.clear()
+        }
+
+        // Reiniciar la secuencia después de 3 segundos de inactividad
+        resetHandler.removeCallbacks(resetSequenceTask)
+        resetHandler.postDelayed(resetSequenceTask, 3000)
     }
 
     private fun checkNetworkAndRefreshWebView() {
