@@ -46,15 +46,11 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler()
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
-    private val SECRET_SEQUENCE = listOf(
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN,
-        KeyEvent.KEYCODE_DPAD_DOWN
-    )
-    private val inputSequence = mutableListOf<Int>()
-    private val resetHandler = Handler(Looper.getMainLooper())
-    private val resetSequenceTask = Runnable { inputSequence.clear() }
+    private var okButtonPressStartTime: Long = 0
+    private val longPressDuration = 3000L
+    private val longPressRunnable = Runnable {
+        showPasswordDialog()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -157,9 +153,15 @@ class MainActivity : AppCompatActivity() {
         //networkTask.execute()
 
         // Crear el cuadro flotante
-        passwordDialog = Dialog(this)
-        passwordDialog.setContentView(R.layout.password)
-        passwordDialog.setCancelable(false)
+        passwordDialog = Dialog(this).apply {
+            setContentView(R.layout.password)
+            setCancelable(true)
+            setCanceledOnTouchOutside(true)
+
+            setOnCancelListener {
+                findViewById<EditText>(R.id.passwordEditText).text.clear()
+            }
+        }
 
         // Botones, muchos botones
         val button1 = passwordDialog.findViewById<Button>(R.id.button1)
@@ -496,8 +498,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            handleSecretSequence(event.keyCode)
+        if (event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+            when (event.action) {
+                KeyEvent.ACTION_DOWN -> {
+                    okButtonPressStartTime = System.currentTimeMillis()
+                    handler.postDelayed(longPressRunnable, longPressDuration)
+                }
+                KeyEvent.ACTION_UP -> {
+                    handler.removeCallbacks(longPressRunnable)
+                    // Optional: Add visual feedback if needed
+                }
+            }
+            return true
         }
         return super.dispatchKeyEvent(event)
     }
@@ -513,25 +525,6 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onKeyDown(keyCode, event)
         }
-    }
-
-    private fun handleSecretSequence(keyCode: Int) {
-        inputSequence.add(keyCode)
-
-        // Mantener solo los últimos elementos necesarios
-        if (inputSequence.size > SECRET_SEQUENCE.size) {
-            inputSequence.removeAt(0)
-        }
-
-        // Verificar si coincide con la secuencia secreta
-        if (inputSequence == SECRET_SEQUENCE) {
-            showPasswordDialog()
-            inputSequence.clear()
-        }
-
-        // Reiniciar la secuencia después de 3 segundos de inactividad
-        resetHandler.removeCallbacks(resetSequenceTask)
-        resetHandler.postDelayed(resetSequenceTask, 3000)
     }
 
     private fun checkNetworkAndRefreshWebView() {
@@ -652,6 +645,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopRefreshTimer()
+        handler.removeCallbacks(longPressRunnable)
         if (passwordDialog.isShowing) {
             passwordDialog.dismiss()
         }
