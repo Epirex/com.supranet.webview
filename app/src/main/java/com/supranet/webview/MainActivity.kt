@@ -20,7 +20,11 @@ import android.net.NetworkInfo
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -46,11 +50,17 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler()
     private var scheduledExecutorService: ScheduledExecutorService? = null
     private var scheduledFuture: ScheduledFuture<*>? = null
-    private var okButtonPressStartTime: Long = 0
-    private val longPressDuration = 3000L
-    private val longPressRunnable = Runnable {
-        showPasswordDialog()
-    }
+    private var isReceiverRegistered = false
+    private var keyPressSequence = mutableListOf<Int>()
+    private val requiredSequence = listOf(
+        KeyEvent.KEYCODE_DPAD_UP,
+        KeyEvent.KEYCODE_DPAD_RIGHT,
+        KeyEvent.KEYCODE_DPAD_DOWN,
+        KeyEvent.KEYCODE_DPAD_LEFT,
+        KeyEvent.KEYCODE_DPAD_CENTER
+    )
+    private var sequenceStartTime: Long = 0
+    private val sequenceTimeout = 5000L
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -64,10 +74,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
         return true
-    }
-
-    private fun refreshWebView() {
-        webView.reload()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -249,8 +255,8 @@ class MainActivity : AppCompatActivity() {
         startRefreshTimer()
 
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL)
-        webView.loadUrl(urlPreference.toString())
+        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
+        webView.loadUrl(urlPreference)
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
@@ -301,9 +307,9 @@ class MainActivity : AppCompatActivity() {
 
         checkNetworkAndRefreshWebView()
         // Registrar el receptor de difusión para las acciones de cambio de conectividad
-        val filter = IntentFilter()
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         registerReceiver(connectivityReceiver, filter)
+        isReceiverRegistered = true
 
         // Ocultar el ActionBar
         val hideToolbarPref = sharedPreferences.getBoolean("hide_toolbar", true)
@@ -458,24 +464,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initServerSocket() {
-        Thread {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 serverSocket = ServerSocket(12345)
-                while (true) {
+                while (!serverSocket.isClosed) {
                     val clientSocket = serverSocket.accept()
-                    val input = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
-                    val receivedUrl = input.readLine()
+                    clientSocket.use { socket ->
+                        val input = BufferedReader(InputStreamReader(socket.getInputStream()))
+                        val receivedUrl = input.readLine()
 
-                    runOnUiThread {
-                        webView.loadUrl(receivedUrl)
+                        withContext(Dispatchers.Main) {
+                            webView.loadUrl(receivedUrl)
+                        }
                     }
-
-                    clientSocket.close()
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        }.start()
+        }
     }
 
     private fun getLocalIpAddress(): String? {
@@ -498,19 +504,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-            when (event.action) {
-                KeyEvent.ACTION_DOWN -> {
-                    okButtonPressStartTime = System.currentTimeMillis()
-                    handler.postDelayed(longPressRunnable, longPressDuration)
-                }
-                KeyEvent.ACTION_UP -> {
-                    handler.removeCallbacks(longPressRunnable)
-                    // Optional: Add visual feedback if needed
-                }
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            val currentTime = System.currentTimeMillis()
+
+            if (keyPressSequence.isEmpty() || currentTime - sequenceStartTime > sequenceTimeout) {
+                keyPressSequence.clear()
+                sequenceStartTime = currentTime
             }
+
+            keyPressSequence.add(event.keyCode)
+
+            if (keyPressSequence.take(requiredSequence.size) == requiredSequence) {
+                keyPressSequence.clear()
+                showPasswordDialog()
+            } else if (!requiredSequence.take(keyPressSequence.size).equals(keyPressSequence)) {
+                keyPressSequence.clear()
+            }
+
             return true
         }
+
         return super.dispatchKeyEvent(event)
     }
 
@@ -645,11 +658,13 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopRefreshTimer()
-        handler.removeCallbacks(longPressRunnable)
         if (passwordDialog.isShowing) {
             passwordDialog.dismiss()
         }
-        unregisterReceiver(connectivityReceiver)
+        if (isReceiverRegistered) {
+            unregisterReceiver(connectivityReceiver)
+            isReceiverRegistered = false
+        }
         if (::serverSocket.isInitialized) {
             try {
                 serverSocket.close()
