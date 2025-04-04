@@ -66,10 +66,7 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
-            checkNetworkAndRefreshWebView()
-            checkTurns()
-            stopRefreshTimer()
-            startRefreshTimer()
+            reloadWebview()
             supportActionBar?.hide()
             true
         }
@@ -83,12 +80,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_home -> {
-                checkNetworkAndRefreshWebView()
-                checkTurns()
-                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-                val urlPreference =
-                    sharedPrefs.getString("url_preference", BASE_URL)
-                webView.loadUrl(urlPreference.toString())
+                loadBaseUrl()
                 supportActionBar?.hide()
                 true
             }
@@ -97,7 +89,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
+        loadBaseUrl()
+        Toast.makeText(applicationContext, "Actualizando contenido...", Toast.LENGTH_SHORT)
             .show()
     }
 
@@ -250,13 +243,8 @@ class MainActivity : AppCompatActivity() {
         // Obtencion de datos de SharedPreferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
-        // Verificar si hay turnos activos
-        checkTurns()
-        startRefreshTimer()
-
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
-        webView.loadUrl(urlPreference)
+        loadBaseUrl()
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
@@ -305,7 +293,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        checkNetworkAndRefreshWebView()
         // Registrar el receptor de difusión para las acciones de cambio de conectividad
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         registerReceiver(connectivityReceiver, filter)
@@ -415,6 +402,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadBaseUrl() {
+        val baseUrl = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
+        if (isNetworkAvailable()) {
+            webView.loadUrl(baseUrl)
+        } else {
+            val orientation = resources.configuration.orientation
+            val errorPage = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                "file:///android_asset/errorvertical/index.html"
+            } else {
+                "file:///android_asset/errorhorizontal/index.html"
+            }
+            webView.loadUrl(errorPage)
+        }
+        checkTurns()
+        stopRefreshTimer()
+        startRefreshTimer()
+    }
+
+    private fun reloadWebview(){
+        webView.reload()
+        stopRefreshTimer()
+        startRefreshTimer()
+    }
+
     private fun startRefreshTimer() {
         val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")?.toLong() ?: 30L
         if (refreshIntervalPref > 0) {
@@ -505,6 +516,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
+            // No usar "Atrás"
+            if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+                return super.dispatchKeyEvent(event)
+            }
             val currentTime = System.currentTimeMillis()
 
             if (keyPressSequence.isEmpty() || currentTime - sequenceStartTime > sequenceTimeout) {
@@ -525,19 +540,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.dispatchKeyEvent(event)
-    }
-
-    // Al presionar el boton volver en el control remoto de la TVBOX
-    // se recargara la pagina actual, esta funcion sera para casos de emergencia
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_BACK -> {
-                checkNetworkAndRefreshWebView()
-                checkTurns()
-                true
-            }
-            else -> super.onKeyDown(keyCode, event)
-        }
     }
 
     private fun checkNetworkAndRefreshWebView() {
@@ -575,7 +577,7 @@ class MainActivity : AppCompatActivity() {
                 handler.postDelayed({
                     checkNetworkAndRefreshWebView()
                     checkTurns()
-                }, 5000) // Retraso de 5 segundos (5000 milisegundos)
+                }, 5000)
             } else {
                 checkNetworkAndRefreshWebView()
             }
@@ -650,9 +652,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        checkTurns()
-        stopRefreshTimer()
-        startRefreshTimer()
+        loadBaseUrl()
     }
 
     override fun onDestroy() {
