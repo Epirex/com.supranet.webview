@@ -19,6 +19,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -482,10 +483,10 @@ class MainActivity : AppCompatActivity() {
                     val clientSocket = serverSocket.accept()
                     clientSocket.use { socket ->
                         val input = BufferedReader(InputStreamReader(socket.getInputStream()))
-                        val receivedUrl = input.readLine()
+                        val receivedText = input.readLine()
 
                         withContext(Dispatchers.Main) {
-                            webView.loadUrl(receivedUrl)
+                            showPopup(receivedText)
                         }
                     }
                 }
@@ -494,6 +495,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun showPopup(text: String) {
+        val dialog = Dialog(this, R.style.PopupDialogTheme).apply {
+            setContentView(R.layout.popup_dialog)
+            window?.apply {
+                setLayout(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                )
+                setGravity(Gravity.TOP or Gravity.END)
+
+                attributes.horizontalMargin = 0.05f
+                attributes.verticalMargin = 0.05f
+
+                val margin = 16.dpToPx(context)
+                decorView.setPadding(margin, margin, margin, margin)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    decorView.elevation = 0f
+                }
+            }
+            setCancelable(true)
+        }
+
+        val textView = dialog.findViewById<TextView>(R.id.popup_text)
+        textView.text = text
+        dialog.show()
+    }
+
+    fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
     private fun getLocalIpAddress(): String? {
         try {
