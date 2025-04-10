@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     )
     private var sequenceStartTime: Long = 0
     private val sequenceTimeout = 5000L
+    private var currentPopupDialog: Dialog? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -497,31 +498,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showPopup(text: String) {
-        val dialog = Dialog(this, R.style.PopupDialogTheme).apply {
-            setContentView(R.layout.popup_dialog)
-            window?.apply {
-                setLayout(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                )
-                setGravity(Gravity.TOP or Gravity.END)
-
-                attributes.horizontalMargin = 0.05f
-                attributes.verticalMargin = 0.05f
-
-                val margin = 16.dpToPx(context)
-                decorView.setPadding(margin, margin, margin, margin)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    decorView.elevation = 0f
+        runOnUiThread {
+            currentPopupDialog?.let { dialog ->
+                if (dialog.isShowing) {
+                    val textView = dialog.findViewById<TextView>(R.id.popup_text)
+                    textView.alpha = 0f
+                    textView.text = text
+                    textView.animate()
+                        .alpha(1f)
+                        .setDuration(1000)
+                        .start()
+                    return@runOnUiThread
                 }
             }
-            setCancelable(true)
-        }
 
-        val textView = dialog.findViewById<TextView>(R.id.popup_text)
-        textView.text = text
-        dialog.show()
+            currentPopupDialog = Dialog(this, R.style.PopupDialogTheme).apply {
+                setContentView(R.layout.popup_dialog)
+                window?.apply {
+                    setLayout(
+                        WindowManager.LayoutParams.WRAP_CONTENT,
+                        WindowManager.LayoutParams.WRAP_CONTENT
+                    )
+                    setGravity(Gravity.TOP or Gravity.END)
+
+                    attributes.horizontalMargin = 0.05f
+                    attributes.verticalMargin = 0.05f
+
+                    val margin = 16.dpToPx(context)
+                    decorView.setPadding(margin, margin, margin, margin)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        decorView.elevation = 0f
+                    }
+                }
+                setCancelable(true)
+
+                findViewById<TextView>(R.id.popup_text).text = text
+
+                setOnDismissListener {
+                    currentPopupDialog = null
+                }
+            }
+
+            currentPopupDialog?.show()
+        }
     }
 
     fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()

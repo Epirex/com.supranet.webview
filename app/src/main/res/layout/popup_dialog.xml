@@ -2,16 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
     android:background="@drawable/popup_background">
 
     <TextView
         android:id="@+id/popup_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="72sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:textSize="95sp"
+        android:textColor="#ffd300"
+        android:fontFamily="@font/anton_regular"
         android:shadowColor="#80000000"
         android:shadowDx="2"
         android:shadowDy="2"
