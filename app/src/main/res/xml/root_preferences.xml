@@ -48,7 +48,7 @@
 
         <CheckBoxPreference
             android:key="back_button_enabled"
-            android:title="Botón Volver"
+            android:title="Botón volver"
             android:summary="Si está desactivado, el botón atrás cerrará la app"
             android:defaultValue="true"
             android:icon="@drawable/android_back" />
