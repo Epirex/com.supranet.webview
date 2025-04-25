@@ -59,9 +59,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        loadBaseUrl()
-        Toast.makeText(applicationContext, "Actualizando contenido...", Toast.LENGTH_SHORT)
-            .show()
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val isBackEnabled = sharedPrefs.getBoolean("back_button_enabled", true)
+
+        if (isBackEnabled) {
+            loadBaseUrl()
+            Toast.makeText(applicationContext, "Actualizando contenido...", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            finishAffinity()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
