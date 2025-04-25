@@ -12,6 +12,13 @@
             app:title="Carga un URL desde Internet"
             android:icon="@drawable/android_http" />
 
+        <EditTextPreference
+            android:key="wordpress_base_url"
+            android:title="URL base de la API"
+            android:summary="http://supranet.ar"
+            android:defaultValue="http://supranet.ar"
+            android:icon="@drawable/android_api" />
+
         <Preference
             app:key="schedule_settings"
             app:title="Horarios"

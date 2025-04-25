@@ -659,7 +659,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchUrlFromPlugin(onResult: (String?) -> Unit) {
         val androidId = getAndroidId()
-        val pluginUrl = "http://nomeputies.com.ar/wp-json/tvboxs/v1/webview-url?device_id=$androidId"
+
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val baseUrl = sharedPrefs.getString("wordpress_base_url", null)
+
+        if (baseUrl.isNullOrEmpty()) {
+            onResult(null)
+            return
+        }
+
+        val pluginUrl = "$baseUrl/wp-json/tvboxs/v1/webview-url?device_id=$androidId"
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -677,7 +686,6 @@ class MainActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         if (urlFromApi != null) {
-                            val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
                             sharedPrefs.edit().putString("url_preference", urlFromApi).apply()
                         }
                         onResult(urlFromApi)

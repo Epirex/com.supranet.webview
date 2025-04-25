@@ -45,6 +45,10 @@ class SettingsActivity : AppCompatActivity() {
             }
             urlPreference?.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
 
+            // URL base de la API de Wordpress
+            val baseUrlPreference = findPreference<EditTextPreference>("wordpress_base_url")
+            baseUrlPreference?.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
+
             // Asigna la preferencia correspondiente a la variable androidIdPreference
             lateinit var androidIdPreference: Preference
             androidIdPreference = findPreference("android_id_preference") ?: throw RuntimeException("Preference with key 'android_id_preference' not found")
