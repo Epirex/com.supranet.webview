@@ -25,6 +25,7 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -403,9 +404,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadBaseUrl() {
-        val baseUrl = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
         if (isNetworkAvailable()) {
-            webView.loadUrl(baseUrl)
+            fetchUrlFromPlugin { fetchedUrl ->
+                val urlToLoad = fetchedUrl ?: sharedPreferences.getString("url_preference", BASE_URL)
+                webView.loadUrl(urlToLoad!!)
+            }
         } else {
             val orientation = resources.configuration.orientation
             val errorPage = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -648,6 +651,49 @@ class MainActivity : AppCompatActivity() {
         // si no hay turnos activos, cargar la URL por defecto
         val urlPreference = sharedPreferences.getString("url_preference", BASE_URL)
         webView.loadUrl(urlPreference.toString())
+    }
+
+    private fun getAndroidId(): String {
+        return Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+    }
+
+    private fun fetchUrlFromPlugin(onResult: (String?) -> Unit) {
+        val androidId = getAndroidId()
+        val pluginUrl = "http://nomeputies.com.ar/wp-json/tvboxs/v1/webview-url?device_id=$androidId"
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL(pluginUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                val responseCode = connection.responseCode
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(response)
+                    val urlFromApi = json.optString("url", null)
+
+                    withContext(Dispatchers.Main) {
+                        if (urlFromApi != null) {
+                            val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
+                            sharedPrefs.edit().putString("url_preference", urlFromApi).apply()
+                        }
+                        onResult(urlFromApi)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        onResult(null)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    onResult(null)
+                }
+            }
+        }
     }
 
     override fun onResume() {

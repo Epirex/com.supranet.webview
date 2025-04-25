@@ -43,6 +43,7 @@ class SettingsActivity : AppCompatActivity() {
                 sharedPrefs.edit().putString("url_preference", newValue.toString()).apply()
                 true
             }
+            urlPreference?.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
 
             // Asigna la preferencia correspondiente a la variable androidIdPreference
             lateinit var androidIdPreference: Preference
