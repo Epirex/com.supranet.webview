@@ -27,4 +27,50 @@
         <item>240</item>
     </string-array>
 
+    <string-array name="background_color_names">
+        <item>Blanco</item>
+        <item>Negro</item>
+        <item>Rojo</item>
+        <item>Verde</item>
+        <item>Azul</item>
+        <item>Amarillo</item>
+        <item>Magenta</item>
+        <item>Celeste</item>
+        <item>Gris Claro</item>
+        <item>Gris Oscuro</item>
+        <item>Naranja</item>
+        <item>Rosa</item>
+        <item>Violeta</item>
+        <item>Menta</item>
+        <item>Oro</item>
+        <item>Turquesa</item>
+        <item>Coral</item>
+        <item>Oliva</item>
+        <item>Marrón</item>
+        <item>Azul Marino</item>
+    </string-array>
+
+    <string-array name="background_color_values">
+        <item>#FFFFFF</item> <!-- Blanco -->
+        <item>#000000</item> <!-- Negro -->
+        <item>#FF0000</item> <!-- Rojo -->
+        <item>#00FF00</item> <!-- Verde -->
+        <item>#0000FF</item> <!-- Azul -->
+        <item>#FFFF00</item> <!-- Amarillo -->
+        <item>#FF00FF</item> <!-- Magenta -->
+        <item>#00FFFF</item> <!-- Celeste -->
+        <item>#D3D3D3</item> <!-- Gris Claro -->
+        <item>#A9A9A9</item> <!-- Gris Oscuro -->
+        <item>#FFA500</item> <!-- Naranja -->
+        <item>#FFC0CB</item> <!-- Rosa -->
+        <item>#800080</item> <!-- Violeta -->
+        <item>#98FF98</item> <!-- Menta -->
+        <item>#FFD700</item> <!-- Oro -->
+        <item>#40E0D0</item> <!-- Turquesa -->
+        <item>#FF7F50</item> <!-- Coral -->
+        <item>#808000</item> <!-- Oliva -->
+        <item>#8B4513</item> <!-- Marrón -->
+        <item>#000080</item> <!-- Azul Marino -->
+    </string-array>
+
 </resources>

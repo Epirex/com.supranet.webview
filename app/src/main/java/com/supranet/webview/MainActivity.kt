@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import java.io.File
+import android.graphics.Color
 import java.net.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -293,6 +294,9 @@ class MainActivity : AppCompatActivity() {
     private fun loadBaseUrl() {
         val baseUrl = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
         webView.loadUrl(baseUrl)
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val backgroundColor = sharedPrefs.getString("background_color", "#FFFFFF") ?: "#FFFFFF"
+        webView.setBackgroundColor(Color.parseColor(backgroundColor))
         stopRefreshTimer()
         startRefreshTimer()
     }
