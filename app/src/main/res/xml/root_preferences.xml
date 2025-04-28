@@ -68,6 +68,16 @@
             app:defaultValue="30"
             android:icon="@drawable/android_refresh" />
 
+        <ListPreference
+            android:key="background_color"
+            android:title="Color de fondo"
+            android:summary="Elegir color de fondo de la App"
+            android:entries="@array/background_color_names"
+            android:entryValues="@array/background_color_values"
+            android:defaultValue="#FFFFFF"
+            android:icon="@drawable/android_palette" />
+
+
         <Preference
             android:key="android_id_preference"
             android:title="Android ID"

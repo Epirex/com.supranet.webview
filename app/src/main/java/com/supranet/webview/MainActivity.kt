@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.app.DownloadManager
 import android.content.*
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -415,6 +416,9 @@ class MainActivity : AppCompatActivity() {
             fetchUrlFromPlugin { fetchedUrl ->
                 val urlToLoad = fetchedUrl ?: sharedPreferences.getString("url_preference", BASE_URL)
                 webView.loadUrl(urlToLoad!!)
+                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+                val backgroundColor = sharedPrefs.getString("background_color", "#FFFFFF") ?: "#FFFFFF"
+                webView.setBackgroundColor(Color.parseColor(backgroundColor))
             }
         } else {
             val orientation = resources.configuration.orientation
