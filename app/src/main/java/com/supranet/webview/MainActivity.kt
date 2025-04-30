@@ -36,8 +36,7 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.main_menu, menu)
         val refreshItem = menu?.findItem(R.id.action_refresh)
         refreshItem?.setOnMenuItemClickListener {
-            stopRefreshTimer()
-            startRefreshTimer()
+            reloadWebview()
             supportActionBar?.hide()
             true
         }
@@ -51,10 +50,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_home -> {
-                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-                val urlPreference =
-                    sharedPrefs.getString("url_preference", BASE_URL)
-                webView.loadUrl(urlPreference.toString())
+                loadBaseUrl()
                 supportActionBar?.hide()
                 true
             }
@@ -63,7 +59,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Toast.makeText(applicationContext, "Ya estas en la pantalla principal", Toast.LENGTH_SHORT)
+        loadBaseUrl()
+        Toast.makeText(applicationContext, "Actualizando contenido...", Toast.LENGTH_SHORT)
             .show()
     }
 
@@ -168,8 +165,7 @@ class MainActivity : AppCompatActivity() {
         startRefreshTimer()
 
         // Cargar URL
-        val urlPreference = sharedPreferences.getString("url_preference", BASE_URL)
-        webView.loadUrl(urlPreference.toString())
+        loadBaseUrl()
 
         // Aplicar configuraciones de zoom después de que la página termine de cargarse
         webView.webViewClient = object : WebViewClient() {
@@ -287,6 +283,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadBaseUrl() {
+        val baseUrl = sharedPreferences.getString("url_preference", BASE_URL) ?: BASE_URL
+        webView.loadUrl(baseUrl)
+        stopRefreshTimer()
+        startRefreshTimer()
+    }
+
+    private fun reloadWebview(){
+        webView.reload()
+        stopRefreshTimer()
+        startRefreshTimer()
+    }
+
     private fun startRefreshTimer() {
         val refreshIntervalPref = sharedPreferences.getString("refresh_interval", "30")?.toLong() ?: 30L
         if (refreshIntervalPref > 0) {
@@ -354,8 +363,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        stopRefreshTimer()
-        startRefreshTimer()
+        loadBaseUrl()
     }
 
     override fun onDestroy() {
